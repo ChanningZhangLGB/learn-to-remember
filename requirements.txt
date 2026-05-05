@@ -1,0 +1,20 @@
+# Core ML / numerics
+numpy>=1.24
+torch>=2.0
+faiss-cpu>=1.7.4   # use faiss-gpu if a CUDA GPU is available
+
+# LLM clients
+openai>=1.0
+litellm>=1.40
+tiktoken>=0.5
+
+# Datasets
+datasets>=2.14    # HuggingFace datasets (loads .arrow files)
+pyarrow>=14.0
+
+# Embeddings (CLIP for multimodal datasets)
+transformers>=4.40
+Pillow>=10.0
+
+# Plotting (figures only)
+matplotlib>=3.7
