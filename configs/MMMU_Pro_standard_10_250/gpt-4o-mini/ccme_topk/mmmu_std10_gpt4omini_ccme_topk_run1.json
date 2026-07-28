@@ -89,7 +89,7 @@
     "ccme_alpha": 0.9,
     "inject_past_solutions": false,
     "past_solutions_top_k": 3,
-    "prospector": false
+    "synthesizer": false
   },
   "experiment_control": {
     "max_n_samples": 250,

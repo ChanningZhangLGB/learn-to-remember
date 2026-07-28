@@ -3,7 +3,7 @@
 This document describes the Learn-to-Remember (LeRe) framework: how a query
 flows through the agent, how the memory bank is structured, how the two
 trainable encoders (CCME, CRTE) are updated online, and how the optional
-Prospector mode anticipates knowledge for upcoming queries. Read together
+Synthesizer mode anticipates knowledge for upcoming queries. Read together
 with [`README.md`](../README.md) (setup + reproduction) and the per-query
 prompts in [`prompts/`](../prompts/).
 
@@ -275,16 +275,16 @@ Detection happens in `_init_components()` of `run_lere_experiment.py` via
 
 ---
 
-## 8. Optional: Prospector (`ccme_topk_prosp_v1`)
+## 8. Optional: Synthesizer (`ccme_topk_synth_v1`)
 
-Standard mode adapts memory *after* each query is solved. The Prospector
+Standard mode adapts memory *after* each query is solved. The Synthesizer
 adds a forward-looking step: a curator-style LLM call that anticipates
 what knowledge query `Q_{i+1}` is likely to need, runs **before** that
 query is processed.
 
-Prospector v1 is **admission-gated** to keep the bank clean:
+Synthesizer v1 is **admission-gated** to keep the bank clean:
 
-1. After Q_i finishes, the Prospector proposes `k` candidate memory
+1. After Q_i finishes, the Synthesizer proposes `k` candidate memory
    entries for Q_{i+1}.
 2. These candidates are kept in an **ephemeral buffer**, not added to the
    bank.
@@ -302,8 +302,8 @@ Prospector v1 is **admission-gated** to keep the bank clean:
 This preserves bank quality (only empirically validated entries persist)
 while still capturing the upside of anticipatory curation.
 
-Earlier modes are kept for ablation: `ccme_topk_prosp` (v0; entries enter
-the bank immediately, no admission gate), `ccme_topk` (no prospector at
+Earlier modes are kept for ablation: `ccme_topk_synth` (v0; entries enter
+the bank immediately, no admission gate), `ccme_topk` (no synthesizer at
 all), `past_sol_plus_ccme` (inject the previous queries' solutions
 alongside CCME-retrieved items).
 
@@ -344,7 +344,7 @@ blocks.
     "shard_capacity", "n_clusters_mode", "n_clusters_fixed",
     "redundancy_threshold", "min_items_for_refinement"
   },
-  "retrieval":           { "retrieve_top_k", "ccme_alpha", "use_source_query_sim", "source_query_sim_mode", "prospector_v1" },
+  "retrieval":           { "retrieve_top_k", "ccme_alpha", "use_source_query_sim", "source_query_sim_mode", "synthesizer_v1" },
   "experiment_control":  { ... },
   "paths":               { ... }
 }

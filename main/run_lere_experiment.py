@@ -785,20 +785,20 @@ def _make_output_dir(cfg: Dict[str, Any]) -> Tuple[str, str, int, str]:
     else:
         ret = cfg.get("retrieval", {})
         _inj = ret.get("inject_past_solutions", False)
-        _prosp = ret.get("prospector", False)
-        _prosp_v1 = ret.get("prospector_v1", False)
+        _synth = ret.get("synthesizer", False)
+        _synth_v1 = ret.get("synthesizer_v1", False)
         if _inj:
-            if _prosp_v1:
-                retrieval_mode = "past_sol_plus_ccme_prosp_v1"
-            elif _prosp:
-                retrieval_mode = "past_sol_plus_ccme_prosp"
+            if _synth_v1:
+                retrieval_mode = "past_sol_plus_ccme_synth_v1"
+            elif _synth:
+                retrieval_mode = "past_sol_plus_ccme_synth"
             else:
                 retrieval_mode = "past_sol_plus_ccme"
         else:
-            if _prosp_v1:
-                retrieval_mode = "ccme_topk_prosp_v1"
-            elif _prosp:
-                retrieval_mode = "ccme_topk_prosp"
+            if _synth_v1:
+                retrieval_mode = "ccme_topk_synth_v1"
+            elif _synth:
+                retrieval_mode = "ccme_topk_synth"
             else:
                 retrieval_mode = "ccme_topk"
     mode_dir = os.path.join(task_dir, retrieval_mode)
@@ -854,10 +854,10 @@ def main() -> int:
     )
     if cfg.get("retrieval", {}).get("inject_past_solutions", False):
         _ret_mode = f"past_sol+{_ret_mode}" if _ret_mode != "ccme_k0" else "past_sol_only"
-    if cfg.get("retrieval", {}).get("prospector_v1", False):
-        _ret_mode = f"{_ret_mode}+prosp_v1"
-    elif cfg.get("retrieval", {}).get("prospector", False):
-        _ret_mode = f"{_ret_mode}+prosp"
+    if cfg.get("retrieval", {}).get("synthesizer_v1", False):
+        _ret_mode = f"{_ret_mode}+synth_v1"
+    elif cfg.get("retrieval", {}).get("synthesizer", False):
+        _ret_mode = f"{_ret_mode}+synth"
     logger.info(f"  Retrieval mode: {_ret_mode}")
 
     # Initialize training components if training is enabled
@@ -923,14 +923,14 @@ def main() -> int:
     # inject_past_solutions: DR-style cosine similarity over past Q&A pairs (independent of CCME)
     inject_past_solutions = cfg.get("retrieval", {}).get("inject_past_solutions", False)
     past_solutions_top_k = int(cfg.get("retrieval", {}).get("past_solutions_top_k", 3))
-    # prospector: after answering Q_i, run a curator call that sees Q_{i+1}
-    use_prospector = cfg.get("retrieval", {}).get("prospector", False)
-    # prospector_v1: prospected entries are EPHEMERAL — not added to bank.
+    # synthesizer: after answering Q_i, run a curator call that sees Q_{i+1}
+    use_synthesizer = cfg.get("retrieval", {}).get("synthesizer", False)
+    # synthesizer_v1: synthesized entries are EPHEMERAL — not added to bank.
     # Prepended to next query's retrieved_memory; admitted to bank only if reflector
     # marks them HELPFUL. CCME training only sees admitted (or originally-bank) items.
-    use_prospector_v1 = cfg.get("retrieval", {}).get("prospector_v1", False)
-    _run_prospector = use_prospector or use_prospector_v1
-    # ephemeral items prospected for the *next* query (assigned e_NNN IDs); cleared each cycle
+    use_synthesizer_v1 = cfg.get("retrieval", {}).get("synthesizer_v1", False)
+    _run_synthesizer = use_synthesizer or use_synthesizer_v1
+    # ephemeral items synthesized for the *next* query (assigned e_NNN IDs); cleared each cycle
     _pending_ephemeral_items: List[Dict] = []
 
     # Build query embeddings in *dataset* order (0..n_eval-1).
@@ -1123,13 +1123,13 @@ def main() -> int:
                         retrieved_memory = topic_cluster_rerank(retrieved_memory, question)
                         logger.info(f"  [TopicCluster] Reranked by topic: {[m.get('id', '?') for m in retrieved_memory]}")
 
-                    # prospector_v1: prepend ephemeral entries (NOT in bank) to retrieved_memory.
+                    # synthesizer_v1: prepend ephemeral entries (NOT in bank) to retrieved_memory.
                     # IDs are e_NNN namespace so no collision with bank m_NNN IDs.
                     # Pipeline's admission gate will admit HELPFUL ones to bank, drop the rest.
-                    if use_prospector_v1 and _pending_ephemeral_items:
+                    if use_synthesizer_v1 and _pending_ephemeral_items:
                         retrieved_memory = list(_pending_ephemeral_items) + retrieved_memory
                         logger.info(
-                            f"  [ProspV1] Prepended {len(_pending_ephemeral_items)} ephemeral "
+                            f"  [SynthV1] Prepended {len(_pending_ephemeral_items)} ephemeral "
                             f"entr{'y' if len(_pending_ephemeral_items)==1 else 'ies'}: "
                             f"{[m.get('id','?') for m in _pending_ephemeral_items]}; "
                             f"total to generator: {len(retrieved_memory)}"
@@ -1171,7 +1171,7 @@ def main() -> int:
                     training_progress=training_progress,
                     question_context=question_context,
                     past_solutions_briefing=past_solutions_briefing,
-                    ephemeral_items=_pending_ephemeral_items if use_prospector_v1 else None,
+                    ephemeral_items=_pending_ephemeral_items if use_synthesizer_v1 else None,
                     temperature=float(cfg["llm"].get("temperature", 0.0)),
                     max_tokens=int(cfg["llm"].get("max_tokens", 4096)),
                     allow_code_execution=bool(cfg["llm"].get("execute_python_code", True)),
@@ -1180,11 +1180,11 @@ def main() -> int:
                 )
 
                 # Reset ephemeral buffer — pipeline has either admitted HELPFUL items or discarded them
-                if use_prospector_v1:
+                if use_synthesizer_v1:
                     _pending_ephemeral_items = []
                     eph_remap = pipeline_outputs.get("ephemeral_id_remap") or {}
                     if eph_remap:
-                        logger.info(f"  [ProspV1] Admitted {len(eph_remap)} ephemeral(s) to bank: {eph_remap}")
+                        logger.info(f"  [SynthV1] Admitted {len(eph_remap)} ephemeral(s) to bank: {eph_remap}")
 
                 retrieved_count = pipeline_outputs.get("retrieved_memory_count")
                 memory_consulted = pipeline_outputs.get("generator", {}).get("memory_consulted", [])
@@ -1372,8 +1372,8 @@ def main() -> int:
                     f.write(f"=== CURATOR OUTPUT (raw LLM response) ===\n\n")
                     f.write(cur_output)
 
-                # --- Prospector: see Q_{i+1} and pre-populate memory ---
-                if _run_prospector and pos + 1 < len(indices):
+                # --- Synthesizer: see Q_{i+1} and pre-populate memory ---
+                if _run_synthesizer and pos + 1 < len(indices):
                     next_i = indices[pos + 1]
                     next_query_id = f"Q_{pos + 2:03d}"
                     try:
@@ -1394,9 +1394,9 @@ def main() -> int:
                             next_question = ds[next_i].get("input", "") or ""
 
                         if next_question:
-                            logger.info(f"  [Prospector] Running prospector for {next_query_id}...")
+                            logger.info(f"  [Synthesizer] Running synthesizer for {next_query_id}...")
                             la_curation, la_curation_raw, la_curator_usage, la_curator_prompt = \
-                                pipeline.run_prospector_stage(
+                                pipeline.run_synthesizer_stage(
                                     language_model=language_model,
                                     memory_bank=updated_memory_bank,
                                     next_question=next_question,
@@ -1410,7 +1410,7 @@ def main() -> int:
                             if la_curation:
                                 la_new = la_curation.get("new_entries", [])
                                 if la_new:
-                                    if use_prospector_v1:
+                                    if use_synthesizer_v1:
                                         # v1 (v2-design): hold as ephemeral, do NOT add to bank yet.
                                         # Assigned e_NNN IDs (separate namespace from m_NNN bank IDs).
                                         _pending_ephemeral_items = []
@@ -1419,7 +1419,7 @@ def main() -> int:
                                             e["id"] = f"e_{idx + 1:03d}"
                                             _pending_ephemeral_items.append(e)
                                         titles = [e.get("title", "?") for e in la_new]
-                                        logger.info(f"  [Prospector] Stored {len(la_new)} ephemeral entr{'y' if len(la_new)==1 else 'ies'} → {titles} (admission gated by next reflector verdict)")
+                                        logger.info(f"  [Synthesizer] Stored {len(la_new)} ephemeral entr{'y' if len(la_new)==1 else 'ies'} → {titles} (admission gated by next reflector verdict)")
                                     else:
                                         # v0 (original): add directly to bank
                                         from main.utils.memory_formatter import apply_curation_updates as _apply_curation
@@ -1433,24 +1433,24 @@ def main() -> int:
                                                 embed_fn=memory_encoder.get_base_embedding,
                                             )
                                         titles = [e.get("title", "?") for e in la_new]
-                                        logger.info(f"  [Prospector] Added {len(la_new)} entr{'y' if len(la_new)==1 else 'ies'} → {titles}")
+                                        logger.info(f"  [Synthesizer] Added {len(la_new)} entr{'y' if len(la_new)==1 else 'ies'} → {titles}")
                                 else:
-                                    logger.info(f"  [Prospector] Prospector proposed 0 entries")
+                                    logger.info(f"  [Synthesizer] Synthesizer proposed 0 entries")
                             else:
-                                logger.info(f"  [Prospector] Prospector failed")
+                                logger.info(f"  [Synthesizer] Synthesizer failed")
 
                             if save_detailed_outputs:
                                 _next_img_note = f"IMAGES: {len(_next_images)} image(s) attached\n" if _next_images else ""
-                                with open(os.path.join(query_log_dir, "prospector_input.txt"), "w") as f:
-                                    f.write(f"=== PROSPECTOR INPUT (for {next_query_id}) ===\n\n")
+                                with open(os.path.join(query_log_dir, "synthesizer_input.txt"), "w") as f:
+                                    f.write(f"=== SYNTHESIZER INPUT (for {next_query_id}) ===\n\n")
                                     if _next_img_note:
                                         f.write(_next_img_note + "\n")
                                     f.write(la_curator_prompt)
-                                with open(os.path.join(query_log_dir, "prospector_output.txt"), "w") as f:
-                                    f.write(f"=== PROSPECTOR OUTPUT (for {next_query_id}) ===\n\n")
+                                with open(os.path.join(query_log_dir, "synthesizer_output.txt"), "w") as f:
+                                    f.write(f"=== SYNTHESIZER OUTPUT (for {next_query_id}) ===\n\n")
                                     f.write(la_curation_raw)
                     except Exception as _la_err:
-                        logger.warning(f"  [Prospector] Error: {_la_err}")
+                        logger.warning(f"  [Synthesizer] Error: {_la_err}")
 
                 # Append to past-solutions store regardless of mode (cheap, always useful)
                 if final_answer and final_answer.strip():

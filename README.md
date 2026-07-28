@@ -37,12 +37,12 @@ Learn_to_remember/
 │       ├── dataset_ordering.py     # Query ordering / shuffling
 │       └── execute_code.py         # Sandboxed Python execution
 │
-├── prompts/                        # Generator / Reflector / Curator / Prospector prompts
+├── prompts/                        # Generator / Reflector / Curator / Synthesizer prompts
 ├── configs/                        # Per-(dataset, model, mode) JSON configs
 ├── data/                           # 9 paper datasets (HuggingFace .arrow format)
 ├── embeddings/                     # Precomputed text/CLIP embeddings (CSV)
 ├── figures/                        # Paper figures (cumulative accuracy + memory size)
-├── docs/LeRe_Pipeline.md           # Algorithm + multimodal + Prospector spec
+├── docs/LeRe_Pipeline.md           # Algorithm + multimodal + Synthesizer spec
 ├── scripts/                        # Embedding precomputation utilities
 ├── test_framework/run_experiment.sh  # Entry-point launcher
 ├── example_usage.py                # Minimal end-to-end example
@@ -115,8 +115,8 @@ Multimodal datasets ship with their CLIP embeddings; text datasets use
 | Folder                  | Behaviour                                                 |
 |-------------------------|-----------------------------------------------------------|
 | `ccme_topk/`            | CCME retrieval, top-k memory items                        |
-| `ccme_topk_prosp/`      | + forward-looking Prospector synthesis stage              |
-| `ccme_topk_prosp_v1/`   | Prospector v1 (refined contract; see `docs/LeRe_Pipeline.md`) |
+| `ccme_topk_synth/`      | + forward-looking Synthesizer synthesis stage              |
+| `ccme_topk_synth_v1/`   | Synthesizer v1 (refined contract; see `docs/LeRe_Pipeline.md`) |
 | `past_sol_plus_ccme/`   | Inject k past solutions alongside CCME-retrieved items    |
 | `ablation/`             | `no_ccme`, `no_crte`, `no_ccme_crte` ablations            |
 

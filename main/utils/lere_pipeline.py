@@ -75,7 +75,7 @@ class LeRePipeline:
         generator_prompt_template: str,
         reflector_prompt_template: str,
         curator_prompt_template: str,
-        prospector_prompt_template: Optional[str] = None,
+        synthesizer_prompt_template: Optional[str] = None,
     ):
         """
         Initialize the pipeline with prompt templates.
@@ -84,12 +84,12 @@ class LeRePipeline:
             generator_prompt_template: Template with placeholders [[MEMORY_BANK]], [[QUESTION]], [[CONTEXT]]
             reflector_prompt_template: Template with placeholders for reflector inputs
             curator_prompt_template: Template with placeholders for curator inputs
-            prospector_prompt_template: Optional template for prospector
+            synthesizer_prompt_template: Optional template for synthesizer
         """
         self.generator_template = generator_prompt_template
         self.reflector_template = reflector_prompt_template
         self.curator_template = curator_prompt_template
-        self.prospector_template = prospector_prompt_template
+        self.synthesizer_template = synthesizer_prompt_template
 
     @staticmethod
     def _is_deepseek_model(model_name: str) -> bool:
@@ -397,7 +397,7 @@ class LeRePipeline:
 
         return curation, response, usage, prompt  # prompt captured for logging
 
-    def run_prospector_stage(
+    def run_synthesizer_stage(
         self,
         language_model,
         memory_bank: List[Dict],
@@ -423,7 +423,7 @@ class LeRePipeline:
         Returns:
             Tuple: (curation dict or None, raw response, usage dict, prompt str)
         """
-        if self.prospector_template is None:
+        if self.synthesizer_template is None:
             return None, "", {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, ""
 
         domain_counts: Dict[str, int] = {}
@@ -441,7 +441,7 @@ class LeRePipeline:
 
         memory_bank_text = format_memory_bank_for_curator(memory_bank)
 
-        prompt = self.prospector_template.replace("[[QUERY_ID]]", next_query_id)
+        prompt = self.synthesizer_template.replace("[[QUERY_ID]]", next_query_id)
         prompt = prompt.replace("[[TRAINING_PROGRESS]]", training_progress)
         prompt = prompt.replace("[[MEMORY_BANK_STATS]]", memory_stats)
         prompt = prompt.replace("[[NEXT_QUESTION]]", next_question)
@@ -595,7 +595,7 @@ class LeRePipeline:
             }
             return final_answer, memory_bank, embedding_index or {}, pipeline_outputs
 
-        # --- Prospector v1 (v2-design) Admission Gate ---
+        # --- Synthesizer v1 (v2-design) Admission Gate ---
         # If ephemeral items were prepended to retrieved_memory, gate them here:
         #   - HELPFUL → admit to bank (assign m_NNN, embed, add)
         #   - HARMFUL/NEUTRAL/unused → discard
@@ -628,7 +628,7 @@ class LeRePipeline:
                 )
                 new_m_ids = [item["id"] for item in memory_bank[bank_size_before:]]
                 admitted_eph_remap = dict(zip(old_ids_in_order, new_m_ids))
-                print(f"[{query_id}] [ProspV1] Admitted {len(helpful_eph_items)} HELPFUL ephemeral(s): {old_ids_in_order} → {new_m_ids}")
+                print(f"[{query_id}] [SynthV1] Admitted {len(helpful_eph_items)} HELPFUL ephemeral(s): {old_ids_in_order} → {new_m_ids}")
 
             # Translate reflection.memory_evaluation: rewrite admitted, drop rejected
             translated_eval = []
@@ -874,17 +874,17 @@ def load_prompts_from_directory(prompts_dir: str) -> Tuple[str, str, str, Option
 
     Args:
         prompts_dir: Path to directory containing generator_prompt.txt, reflector_prompt.txt,
-                     curator_prompt.txt, and optionally prospector_prompt.txt
+                     curator_prompt.txt, and optionally synthesizer_prompt.txt
 
     Returns:
-        Tuple[str, str, str, Optional[str]]: (generator, reflector, curator, prospector) templates
+        Tuple[str, str, str, Optional[str]]: (generator, reflector, curator, synthesizer) templates
     """
     import os
 
     generator_path = os.path.join(prompts_dir, "generator_prompt.txt")
     reflector_path = os.path.join(prompts_dir, "reflector_prompt.txt")
     curator_path = os.path.join(prompts_dir, "curator_prompt.txt")
-    prospector_path = os.path.join(prompts_dir, "prospector_prompt.txt")
+    synthesizer_path = os.path.join(prompts_dir, "synthesizer_prompt.txt")
 
     with open(generator_path, 'r') as f:
         generator_template = f.read()
@@ -895,12 +895,12 @@ def load_prompts_from_directory(prompts_dir: str) -> Tuple[str, str, str, Option
     with open(curator_path, 'r') as f:
         curator_template = f.read()
 
-    prospector_template = None
-    if os.path.isfile(prospector_path):
-        with open(prospector_path, 'r') as f:
-            prospector_template = f.read()
+    synthesizer_template = None
+    if os.path.isfile(synthesizer_path):
+        with open(synthesizer_path, 'r') as f:
+            synthesizer_template = f.read()
 
-    return generator_template, reflector_template, curator_template, prospector_template
+    return generator_template, reflector_template, curator_template, synthesizer_template
 
 
 def create_pipeline_from_directory(prompts_dir: str) -> LeRePipeline:
@@ -913,5 +913,5 @@ def create_pipeline_from_directory(prompts_dir: str) -> LeRePipeline:
     Returns:
         LeRePipeline: Configured pipeline instance
     """
-    generator, reflector, curator, prospector = load_prompts_from_directory(prompts_dir)
-    return LeRePipeline(generator, reflector, curator, prospector)
+    generator, reflector, curator, synthesizer = load_prompts_from_directory(prompts_dir)
+    return LeRePipeline(generator, reflector, curator, synthesizer)
