@@ -1,20 +1,11 @@
-# Core ML / numerics
+# Python >= 3.8. Versions are the ones the paper's runs used; newer releases should work.
 numpy>=1.24
-torch>=2.0
-faiss-cpu>=1.7.4   # use faiss-gpu if a CUDA GPU is available
-
-# LLM clients
-openai>=1.0
-litellm>=1.40
-tiktoken>=0.5
-
-# Datasets
-datasets>=2.14    # HuggingFace datasets (loads .arrow files)
-pyarrow>=14.0
-
-# Embeddings (CLIP for multimodal datasets)
-transformers>=4.40
-Pillow>=10.0
-
-# Plotting (figures only)
-matplotlib>=3.7
+pyyaml>=6.0
+openai>=1.40            # OpenAI and Gemini (OpenAI-compatible endpoint) clients
+torch>=1.13             # CCME heads; without torch the heads stay at the identity
+sentence-transformers>=2.2   # frozen base encoder all-MiniLM-L6-v2
+scipy>=1.10             # analysis scripts
+sympy>=1.12             # MATH answer equivalence in the scorer
+pyarrow>=12             # scripts/data/fetch_images.py
+huggingface_hub>=0.20   # scripts/data/fetch_images.py
+pytest>=7               # tests

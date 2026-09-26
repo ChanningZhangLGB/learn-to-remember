@@ -1,184 +1,114 @@
 # Learn to Remember (LeRe)
 
-Test-time adaptation through learned, contrastive memory.
+Code for *Learn to Remember: Geometric Memory for Inference-Time Self-Improvement in Language
+Models* (under review at ICLR 2027).
 
-LeRe is an agentic context engineering framework that learns to **remember**
-which past insights help on which queries. Each query is solved by a
-Generator → Reflector → Curator pipeline that maintains a structured memory
-bank. Two trainable encoders — **CCME** (Contrastive Contextual Memory
-Encoder) and **CRTE** (Contrastive Reflection-Trajectory Encoder) — are
-updated online so retrieval and curation improve as the agent sees more
-queries.
-
-This repo contains the algorithm, the datasets used in our experiments, the
-precomputed text/CLIP embeddings, all configs needed to reproduce the paper
-results, and a small `usage_example.npy` showing the memory-bank format.
-
----
+LeRe adapts a frozen LLM at inference time without ground-truth labels or weight updates. A
+**Planner** turns each query into a structured retrieval key; **CCME**, two linear heads on a
+frozen sentence encoder, retrieves the top-K memory entries and is trained online from the
+Curator's attributions; a **Solver** answers, optionally running code; a **Curator** verifies
+the answer, credits or blames each retrieved entry and proposes new ones, which the **GCM**
+gate (Guard, Consolidate, Maintain) filters into the memory bank.
 
 ## Repository layout
 
 ```
-Learn_to_remember/
-├── main/                           # Algorithm (LeRe core)
-│   ├── ccme_encoder.py             # CCME: query/memory encoders + contrastive loss
-│   ├── crte_encoder.py             # CRTE: trajectory/reflection encoders + temporal embedding
-│   ├── memory_operations.py        # Add / dedupe / prune / refine memory bank
-│   ├── training_data.py            # Online buffers, contrastive pair extraction
-│   ├── online_trainer.py           # Test-time training loop
-│   ├── language_model_lere.py      # LLM call + Python-execution hook
-│   ├── model_call.py               # Generic LLM client (litellm wrapper)
-│   ├── run_lere_experiment.py      # End-to-end experiment runner
-│   └── utils/
-│       ├── lere_pipeline.py        # Generator → Reflector → Curator orchestrator
-│       ├── lere_extractor.py       # Parse structured outputs from each stage
-│       ├── memory_formatter.py     # Render memory items into prompts
-│       ├── adapters.py             # Trainable projection heads
-│       ├── dataset_ordering.py     # Query ordering / shuffling
-│       └── execute_code.py         # Sandboxed Python execution
+learn-to-remember-AD37/
+├── lere/                            # Algorithm (LeRe core)
+│   ├── pipeline.py                  # Plan → retrieve → solve → curate loop (Algorithm 1)
+│   ├── retrieve.py                  # Retrieval score (Eq. 3) + MMR top-K selection
+│   ├── embed.py                     # Frozen encoder + CCME projection heads E_q / E_m
+│   ├── ccqs.py                      # CCME online contrastive training (Eq. 10-11)
+│   ├── curate.py                    # Credit assignment (Eq. 12) + Consolidate (merge / link)
+│   ├── guard.py                     # Guard: answer-leakage / restatement rejection
+│   ├── store.py                     # Memory bank, reliability (Eq. 8), quarantine, pruning
+│   ├── verify.py                    # Label-free verification signal
+│   ├── tools.py                     # Restricted Python execution for the Solver
+│   ├── providers.py                 # OpenAI / Gemini clients + cost ledger
+│   ├── llm.py                       # LLM interface + offline stand-in
+│   ├── schema.py                    # Planner / Solver / Curator output schemas
+│   ├── answers.py                   # Answer normalization
+│   ├── datasets.py                  # Stream loading (JSONL + images)
+│   └── trace.py                     # Run recorders (calls, retrieval, CCME)
 │
-├── prompts/                        # Generator / Reflector / Curator / Synthesizer prompts
-├── configs/                        # Per-(dataset, model, mode) JSON configs
-├── data/                           # 9 paper datasets (HuggingFace .arrow format)
-├── embeddings/                     # Precomputed text/CLIP embeddings (CSV)
-├── figures/                        # Paper figures (cumulative accuracy + memory size)
-├── docs/LeRe_Pipeline.md           # Algorithm + multimodal + Synthesizer spec
-├── scripts/                        # Embedding precomputation utilities
-├── test_framework/run_experiment.sh  # Entry-point launcher
-├── example_usage.py                # Minimal end-to-end example
-├── usage_example.npy               # Sample memory-bank state (see below)
-├── config.env.example              # API-key template (copy → config.env)
+├── prompts/                         # Planner / Solver / Curator prompts + vocabularies
+├── configs/
+│   ├── lere.yaml                    # All hyperparameters (Table 4)
+│   ├── models/                      # Backbone + list prices (Table 3)
+│   └── streams.yaml                 # The 12 evaluation streams
+├── data/subsets/                    # 12 streams, fixed evaluation order (JSONL)
+├── scripts/
+│   ├── run_lere.py                  # Run one stream (ablation / K flags)
+│   ├── run_stream.sh                # Entry-point launcher
+│   ├── run_main.sh                  # Table 1: 12 streams × 3 backbones
+│   ├── run_ablations.sh             # Table 2: w/o Planner / CCME / Execution
+│   ├── run_k_sweep.sh               # Table 8: K ∈ {1, 5, 10}
+│   ├── eval/                        # Shared answer scorer (App. B.3) + run scoring
+│   ├── analysis/                    # CCME geometry, verification reliability, K-sweep tests
+│   └── data/fetch_images.py         # Image download + SHA-256 check
+├── tests/                           # Unit tests (no API access)
+├── API_key.txt.example              # API-key template (copy → API_key.txt)
 └── requirements.txt
 ```
-
----
 
 ## Setup
 
 ```bash
-# 1. Create environment
-conda create -n lere python=3.11 -y
-conda activate lere
-pip install -r requirements.txt
-
-# 2. Configure API keys
-cp config.env.example config.env
-# Edit config.env — fill in keys for the providers you intend to use
+pip install -r requirements.txt                 # tested on Python 3.8
+python -m pytest tests/ -q                      # no API access needed
+python scripts/data/fetch_images.py             # images for MathVista, MMMU-Pro, HLE
 ```
 
-You only need keys for the providers you actually call. `OPENAI_API_KEY_EMBED`
-is used for `text-embedding-3-small` (memory-item embeddings) regardless of
-which LLM you query, so it is required for all runs.
+Set `OPENAI_API_KEY` and/or `GEMINI_API_KEY` (or copy `API_key.txt.example` to `API_key.txt`).
+HLE is gated on Hugging Face: run `huggingface-cli login` before fetching its images. The
+twelve evaluation streams are in `data/subsets/`, in the order all methods processed them
+(see `data/README.md`).
 
----
-
-## Reproducing paper results
-
-Each entry in `configs/` corresponds to one (dataset, model, retrieval mode)
-cell of the result tables. To reproduce a single run:
+## Usage
 
 ```bash
-bash test_framework/run_experiment.sh \
-    configs/AIME_2024/gemini-2.5-flash-lite/ccme_topk/aime2024_gemini_ccme_topk_run1.json
+scripts/run_stream.sh gpt-4.1-mini AIME_2025               # one stream, one backbone
+scripts/run_stream.sh gpt-4o-mini AIME_2025 --dry-run      # offline, no API calls
+python scripts/eval/score_runs.py runs/gpt-4.1-mini/AIME_2025
 ```
 
-Outputs land under `results/<model>/<dataset>/<mode>/run_<id>/<timestamp>/`:
+Backbones: `gemini-3.1-flash-lite`, `gpt-4.1-mini`, `gpt-4o-mini`. Streams are listed in
+`configs/streams.yaml`. Options: `--top-k K`, `--no-planner`, `--no-ccme`, `--no-exec`,
+`--set section.key=value`, `--limit N`, `--out DIR`.
 
-| File                              | Contents                                              |
-|-----------------------------------|-------------------------------------------------------|
-| `*_results.jsonl`                 | One record per query: input, trajectory, final answer |
-| `final_memory_bank.json`          | Memory-bank state at end of run                       |
-| `embedding_index.pkl`             | `{memory_id: 1536-dim embedding}`                     |
-| `experiment_summary.json`         | Aggregate metrics + config snapshot                   |
-| `input_output_log/query_NNN/`     | Per-query Generator/Reflector/Curator inputs+outputs  |
-| `checkpoints/`                    | CCME / CRTE encoder weights                           |
+All hyperparameters (Table 4) are in `configs/lere.yaml`; backbones and prices are in
+`configs/models/`. Each run directory records every LLM call, retrieval candidate, CCME update
+and memory write, plus `report.json` with accuracy, cost and latency.
 
-### Datasets included
-
-| Dataset                       | Domain         | # queries |
-|-------------------------------|----------------|-----------|
-| `AIME_2024`                   | Math (text)    |        30 |
-| `AIME_2025`                   | Math (text)    |        30 |
-| `GPQA_Diamond`                | Science (text) |       198 |
-| `MMLU_Pro_Engineering_250`    | MMLU-Pro       |       250 |
-| `MMLU_Pro_Physics_250`        | MMLU-Pro       |       250 |
-| `MathVista_testmini_250`      | Vision+Math    |       250 |
-| `MMMU_Pro_standard_4_250`    | Multimodal     |       250 |
-| `MMMU_Pro_standard_10_250`   | Multimodal     |       250 |
-| `MMMU_Pro_vision_250`        | Vision-only    |       250 |
-
-Multimodal datasets ship with their CLIP embeddings; text datasets use
-`text-embedding-3-small`.
-
-### Retrieval modes (per-dataset config sub-folders)
-
-| Folder                  | Behaviour                                                 |
-|-------------------------|-----------------------------------------------------------|
-| `ccme_topk/`            | CCME retrieval, top-k memory items                        |
-| `ccme_topk_synth/`      | + forward-looking Synthesizer synthesis stage              |
-| `ccme_topk_synth_v1/`   | Synthesizer v1 (refined contract; see `docs/LeRe_Pipeline.md`) |
-| `past_sol_plus_ccme/`   | Inject k past solutions alongside CCME-retrieved items    |
-| `ablation/`             | `no_ccme`, `no_crte`, `no_ccme_crte` ablations            |
-
----
-
-## Memory-bank format (`usage_example.npy`)
-
-```python
-import numpy as np
-
-data = np.load("usage_example.npy", allow_pickle=True).item()
-
-memory_bank = data["memory_bank"]   # list[dict] — one entry per memory item
-embeddings  = data["embeddings"]    # np.ndarray, shape (N, 1536), float32
-
-print(memory_bank[0]["title"])
-# → "Analyzing Nested Absolute Value and Trigonometric Functions"
-
-print(memory_bank[0].keys())
-# → dict_keys(['title', 'bullets', 'example', 'tags', 'scope', 'meta', 'id'])
-```
-
-Each memory item has:
-
-| Field     | Type        | Description                                            |
-|-----------|-------------|--------------------------------------------------------|
-| `id`      | `str`       | Unique identifier (`m_NNN`)                            |
-| `title`   | `str`       | Short name for the strategy / insight                  |
-| `bullets` | `list[str]` | Actionable reasoning steps                             |
-| `example` | `str`       | Concrete worked example                                |
-| `tags`    | `list[str]` | Semantic tags (`reasoning.*`, `strategy.*`, etc.)      |
-| `scope`   | `str`       | When this memory applies                               |
-| `meta`    | `dict`      | `helpful` / `harmful` counts, `source_queries`, etc.   |
-
-Cosine-similarity retrieval over the embeddings is the baseline retrieval
-operator; CCME re-ranks the candidates using its trained projection.
-
----
-
-## End-to-end example
-
-`example_usage.py` instantiates a minimal LeRe agent (CCME + CRTE +
-MemoryOperations + OnlineTrainer + Pipeline) and walks through a single
-query. It is the shortest path from "what does the API look like" to
-"running it on your own task".
+## Reproducing the paper
 
 ```bash
-python example_usage.py
+scripts/run_main.sh                    # Table 1: 12 streams x 3 backbones
+scripts/run_ablations.sh               # Table 2: w/o Planner, CCME, Execution
+scripts/run_k_sweep.sh <backbone>      # Table 8: K in {1, 5, 10}
+
+python scripts/eval/score_runs.py runs/*/* --table                 # accuracy (Appendix B.3 scorer)
+python scripts/analysis/ccme_geometry.py runs/*/*                  # Table 6, Figure 8
+python scripts/analysis/verification_reliability.py runs/*/*      # Table 7
+python scripts/analysis/k_sweep_significance.py runs/*/*          # Table 8 tests
 ```
 
----
+Runs use temperature 0 and at most 2,048 output tokens per call, but hosted models can change
+over time, so results may differ slightly. Baselines were run with the official Dynamic
+Cheatsheet (https://github.com/suzgunmirac/dynamic-cheatsheet) and ACE implementations on the
+same streams and scorer.
 
-## Citation
+## Code vs. paper names
 
-Paper: *Sparse and Uncertainty-Aware Agentic Context Engineering for
-Robust Test-Time Adaptation.* (See `docs/LeRe_Pipeline.md` for the
-algorithmic specification.)
+| Paper | Code |
+| --- | --- |
+| Planner / Solver / Curator | `c1` / `c2` / `c3` |
+| memory bank, entry | `SkillBook`, `SkillEntry` |
+| CCME, heads E_q / E_m | `ccqs`, `Ep` / `Es` |
+| HELPFUL / HARMFUL / IRRELEVANT / REDUNDANT | `used_positive` / `used_negative` / `unused_irrelevant` / `unused_redundant` |
 
----
+## Note
 
-## License
-
-Code is released under the MIT License. Dataset files retain their original
-licenses (AIME, GPQA, MMLU-Pro, MMMU-Pro, MathVista) — see each dataset's
-upstream source for terms.
+The Solver executes model-written Python in a restricted subprocess (no network, no API keys,
+time and memory limits). This is not a full sandbox; run experiments in an isolated
+environment.

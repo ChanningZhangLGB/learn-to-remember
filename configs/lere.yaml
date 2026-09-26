@@ -1,0 +1,96 @@
+# LeRe configuration used for every run in the paper (Table 4, Appendix B.4).
+#
+# One file for all streams and backbones: the backbone-specific block (provider, model,
+# list prices) lives in configs/models/<model>.yaml and is merged over the `llm:` section
+# below by scripts/run_lere.py. Ablations and the K sweep are command-line overrides of
+# this file (see README), not separate configs.
+#
+# Naming: the code predates the paper's notation. Planner / Solver / Curator are the
+# components c1 / c2 / c3; the section `ccqs` configures CCME (heads E_q, E_m, called
+# Ep / Es in the code); the "skill book" is the memory bank. README.md has the full map.
+
+run:
+  scope: streaming          # one pass over the stream, memory carried across items
+  write_enabled: true
+  batch_size: 1
+  seed: null                # null = keep the file order (the fixed seed-10 permutation)
+  reset_per_run: true       # M_0 = empty, W_q = W_m = I at the start of every stream
+
+llm:                        # backbone block is merged in from configs/models/
+  base_url: null
+  api_key_file: API_key.txt # optional NAME=value file; env vars also work (README)
+  api_key_env: null
+  temperature: 0.0          # all methods decode at temperature 0
+  max_tokens: 2048          # at most 2,048 output tokens per call, all methods
+  supports_images: true
+  timeout_s: 120
+  max_retries: 5
+  backoff_base_s: 1.0
+  backoff_max_s: 30.0
+  max_parse_retries: 2
+  components: {}            # optional per-role overrides: {c1: {...}, c2: {...}, c3: {...}}
+
+retrieval:                  # Eq. (3) + MMR
+  top_k: 3                  # K, retrieved entries per query
+  sim_threshold: false      # no relevance floor: every active entry is a candidate
+  alpha: 0.7                # weight of the learned similarity vs. reliability p_hat
+  domain_filter: soft
+  domain_penalty: 0.25      # beta: out-of-domain similarity is scaled by (1 - beta)
+  domain_partial_credit: 0.6  # sibling subdomain (e.g. math.algebra vs math.geometry)
+  mmr_lambda: 0.7           # lambda_MMR
+
+ccqs:                       # CCME, Eq. (11)
+  enabled: true             # false = frozen encoder (the "w/o CCME" ablation)
+  k_upd: 3                  # one AdamW step every k_upd queries ...
+  min_pairs: 4              # ... once at least n_min trainable pairs are buffered
+  tau: 0.07
+  lr: 0.001
+  weight_decay: 0.0001
+  batch_size: 32
+  steps_per_update: 1
+  max_negatives: 32         # negatives per anchor
+  buffer_size: 512          # FIFO pair buffer
+  seed: 0
+
+tools:                      # Solver code execution
+  enabled: true             # false = the "w/o Execution" ablation
+  max_calls_per_item: 3     # kappa
+  timeout_s: 20
+  max_output_chars: 4000
+  memory_mb: 2048           # POSIX address-space cap for the child process
+  deny_imports: null        # null = built-in denylist (network, subprocess, filesystem)
+
+verification:
+  source: exec              # label-free: verdict from the Solver's own executed code
+  judge_confidence_cap: 0.6 # confidence cap when the Curator's judgment supplies the verdict
+  consistency_samples: 5    # only used by source: consistency (not used in the paper)
+  gains:                    # kept for config compatibility; evidence is the confidence
+    gt:          { positive: 1.0, negative: 1.0 }   # alone (Eq. 12), so all gains are 1.0
+    exec:        { positive: 1.0, negative: 1.0 }
+    consistency: { positive: 1.0, negative: 1.0 }
+    judge:       { positive: 1.0, negative: 1.0 }
+
+curation:                   # GCM: Consolidate
+  merge_threshold: 0.90     # theta_merge
+  link_threshold: 0.80      # theta_link
+  max_bullets_after_merge: 8
+  max_proposals_per_query: 3
+
+guard:                      # GCM: Guard (rejects answer leakage and problem restatement)
+  max_ngram_overlap: 0.35
+  ngram_n: 8
+  block_answer_leak: true
+  block_answer_phrases: true
+  block_shared_numbers: true
+  max_shared_numbers: 1
+
+pruning:                    # GCM: Maintain
+  max_entries: 512          # C_max
+  quarantine_reliability: 0.25   # rho
+  quarantine_min_evidence: 4.0   # e_min
+
+embedding:                  # frozen base encoder f
+  backend: sentence_transformers
+  model: all-MiniLM-L6-v2
+  dim: 512
+  proj_dim: null            # keep null: heads are D x D and start at the identity

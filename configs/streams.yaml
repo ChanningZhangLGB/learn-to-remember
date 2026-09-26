@@ -1,0 +1,14 @@
+# The twelve evaluation streams (Section 4.1, Appendix B.1). Each file in data/subsets/
+# holds the items in the fixed order every method processed them in (seed-10 permutation).
+AIME_2024:            aime_2024_dcorder30
+AIME_2025:            aime_2025_dcorder30
+AIME_2020_2025:       aime_2020_2025_dcorder162
+MATH:                 math500_dcorder250
+GPQA_Diamond:         gpqa_diamond_dcorder198
+MMLU_Pro_Engineering: mmlu_pro_engineering_dcorder250
+MMLU_Pro_Physics:     mmlu_pro_physics_dcorder250
+HLE_Exact:            hle_dcorder250
+MathVista:            mathvista_testmini_dcorder250
+MMMU_Pro_Standard_4:  mmmu_pro_standard_4_dcorder250
+MMMU_Pro_Standard_10: mmmu_pro_standard_10_dcorder250
+MMMU_Pro_Vision:      mmmu_pro_vision_dcorder250

@@ -1,0 +1,14 @@
+{
+  "source": "AIME 2020-2025 problems as released with Dynamic Cheatsheet (Suzgun et al.)",
+  "kept": 162,
+  "dropped": [
+    {
+      "file_index": 82,
+      "id": "2022-II-8",
+      "target": "080 or 081 (both were accepted)",
+      "reason": "non-integer target; scorers have no alternative-answer support"
+    }
+  ],
+  "order": "np.random.default_rng(10).permutation(162) over the cleaned pool",
+  "coverage_note": "2024 Part I absent; 2024-II-9 and 2023-I-15 absent; 2025 ids recovered by text match to LeRe AIME_2025"
+}

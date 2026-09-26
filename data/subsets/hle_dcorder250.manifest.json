@@ -1,0 +1,43 @@
+{
+  "source": "cais/hle test (2500)",
+  "variant": "HLE-Exact: gold is a letter or a bare number only",
+  "seed": 10,
+  "rule": "default_rng(10).permutation(2500), keep letter/number golds, fill 8 categories evenly",
+  "pool_scoreable": 1213,
+  "pool_by_category": {
+    "Biology/Medicine": 186,
+    "Chemistry": 55,
+    "Computer Science/AI": 127,
+    "Engineering": 51,
+    "Humanities/Social Science": 103,
+    "Math": 508,
+    "Other": 99,
+    "Physics": 84
+  },
+  "quota": {
+    "Biology/Medicine": 32,
+    "Chemistry": 31,
+    "Computer Science/AI": 31,
+    "Engineering": 31,
+    "Humanities/Social Science": 31,
+    "Math": 32,
+    "Other": 31,
+    "Physics": 31
+  },
+  "n": 250,
+  "mcq": 153,
+  "number": 97,
+  "with_image": 34,
+  "first_pool_indices": [
+    382,
+    1811,
+    1388,
+    800,
+    2100,
+    1454,
+    1390,
+    126,
+    1038,
+    1622
+  ]
+}

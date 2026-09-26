@@ -1,0 +1,3 @@
+# Copy to API_key.txt (git-ignored), or export the same names as environment variables.
+OPENAI_API_KEY="sk-..."
+GEMINI_API_KEY="..."

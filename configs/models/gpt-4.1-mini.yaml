@@ -1,0 +1,9 @@
+# Backbone block merged over `llm:` in configs/lere.yaml. Prices: USD per 1M tokens,
+# the provider's list prices (Table 3); used only for the cost ledger in report.json.
+llm:
+  provider: openai          # key: OPENAI_API_KEY
+  model: gpt-4.1-mini
+  price_per_mtok:
+    input: 0.40
+    cached_input: 0.10
+    output: 1.60
