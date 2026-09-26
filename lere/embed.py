@@ -1,20 +1,20 @@
-"""Encoders: a frozen base plus the two trainable projection heads Ep and Es.
+"""Encoders: a frozen base plus the two trainable projection heads E_q and E_m.
 
 An earlier design enforced a single shared encoder object. That was too strong. The real
 constraint is that the query side and the skill side must be **trained jointly by one
 loss** -- two *independently* trained encoders put their outputs in unaligned subspaces
 where cosine similarity carries no usable signal. A dual head over one frozen base,
-coupled by L_ccqs, satisfies that and is what CCQS needs (see `lere/ccqs.py`).
+coupled by L_ccme, satisfies that and is what CCME needs (see `lere/ccme.py`).
 
 Two properties are load-bearing:
 
   * **Identity initialization.** Both heads start as (a truncated/padded) identity, so an
-    untrained CCQS reproduces frozen-base retrieval exactly. This makes the
-    `ccqs.enabled: false` ablation an exact control, and it removes the cold-start regime
+    untrained CCME reproduces frozen-base retrieval exactly. This makes the
+    `ccme.enabled: false` ablation an exact control, and it removes the cold-start regime
     where a randomly projected space would be worse than no projection at all.
   * **Base embeddings are cached, heads are not.** A head update invalidates only the
     projected vectors; the expensive base pass is never repeated. Refreshing the whole
-    book after an update is one (n x d) @ (d x p) matmul.
+    memory after an update is one (n x d) @ (d x p) matmul.
 """
 
 from __future__ import annotations
@@ -82,7 +82,7 @@ class SentenceTransformerEncoder:
     """sentence-transformers wrapper. Import is lazy so the package stays optional.
 
     `all-MiniLM-L6-v2` (384-d) is the configured default: local, free, and cheap enough
-    that re-encoding the book on every CCQS update is not a cost consideration. It is
+    that re-encoding the memory on every CCME update is not a cost consideration. It is
     text-only, so multimodal items reach it through the planner's `visual_context`.
     """
 
@@ -123,7 +123,7 @@ def _identity_init(in_dim: int, out_dim: int) -> np.ndarray:
 class ProjectionHead:
     """One linear head, identity-initialized. Wraps torch when available.
 
-    Kept deliberately small: with an empty book at step 0 and a few hundred queries in a
+    Kept deliberately small: with an empty memory at step 0 and a few hundred queries in a
     whole AIME run, the realistic yield is on the order of 10^2 positive pairs. A single
     linear map with weight decay is roughly the largest thing that data can support.
     """
@@ -159,7 +159,7 @@ class ProjectionHead:
         return self._module
 
     def forward_torch(self, x):
-        """Differentiable path used by the CCQS trainer. L2-normalized output."""
+        """Differentiable path used by the CCME trainer. L2-normalized output."""
         t = self._torch
         return t.nn.functional.normalize(self._module(x), dim=-1)
 
@@ -184,11 +184,11 @@ class ProjectionHead:
 
 
 class DualEncoder:
-    """Ep (queries) and Es (skill entries) over one frozen base.
+    """E_q (queries) and E_m (skill entries) over one frozen base.
 
-    `version` increments on every head update. The book watches it and drops its projected
+    `version` increments on every head update. The memory watches it and drops its projected
     vector cache, which is the mechanism that keeps stored vectors from going stale after
-    CCQS learns something -- a silent failure otherwise, since retrieval would keep
+    CCME learns something -- a silent failure otherwise, since retrieval would keep
     scoring against embeddings from an older parameterization.
     """
 
@@ -196,8 +196,8 @@ class DualEncoder:
         self._base = base
         self.base_dim = base.dim
         self.dim = int(proj_dim or base.dim)
-        self.ep = ProjectionHead(self.base_dim, self.dim, "Ep")
-        self.es = ProjectionHead(self.base_dim, self.dim, "Es")
+        self.eq = ProjectionHead(self.base_dim, self.dim, "E_q")
+        self.em = ProjectionHead(self.base_dim, self.dim, "E_m")
         self._base_cache: dict[str, np.ndarray] = {}
         self.version = 0
 
@@ -207,7 +207,7 @@ class DualEncoder:
 
     @property
     def trainable(self) -> bool:
-        return self.ep.trainable and self.es.trainable
+        return self.eq.trainable and self.em.trainable
 
     # ------------------------------------------------------------ base caching
 
@@ -226,27 +226,27 @@ class DualEncoder:
     # ------------------------------------------------------------- projections
 
     def encode_query(self, text: str) -> np.ndarray:
-        """Ep."""
-        return self.ep.apply(self.base_vectors([text]))[0]
+        """E_q."""
+        return self.eq.apply(self.base_vectors([text]))[0]
 
-    def encode_skill(self, texts: Sequence[str]) -> np.ndarray:
-        """Es."""
-        return self.es.apply(self.base_vectors(list(texts)))
+    def encode_entries(self, texts: Sequence[str]) -> np.ndarray:
+        """E_m."""
+        return self.em.apply(self.base_vectors(list(texts)))
 
     def bump_version(self) -> int:
         self.version += 1
         return self.version
 
     def reset_heads(self) -> None:
-        """Re-initialize Ep and Es to identity.
+        """Re-initialize E_q and E_m to identity.
 
         Called at the start of every run. Carrying heads across runs would break the
         prequential guarantee: run n would be answering items whose labels shaped the
         encoder in runs 1..n-1, so an item would no longer be predicted before its own
         label was used.
         """
-        self.ep.reset()
-        self.es.reset()
+        self.eq.reset()
+        self.em.reset()
         self.bump_version()
 
 

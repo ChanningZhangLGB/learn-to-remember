@@ -43,7 +43,7 @@ Rules:
 - Always `prefix.snake_case`. A tag with no listed prefix is dropped.
 - `knowledge.*` entries are the weakest kind of skill entry — they tend to be one-shot
   facts rather than transferable procedures. Prefer `strategy.*` and `pitfall.*`.
-- `tool.*` is the channel by which "this problem type wants code" reaches retrieval. C1's
+- `tool.*` is the channel by which "this problem type wants code" reaches retrieval. The Planner's
   `tool_expected` flag controls *execution* and is deliberately kept out of the retrieval
   key; a `tool.*` tag is how the same judgement becomes a durable, retrievable skill.
 

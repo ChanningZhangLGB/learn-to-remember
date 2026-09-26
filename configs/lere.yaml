@@ -4,10 +4,6 @@
 # list prices) lives in configs/models/<model>.yaml and is merged over the `llm:` section
 # below by scripts/run_lere.py. Ablations and the K sweep are command-line overrides of
 # this file (see README), not separate configs.
-#
-# Naming: the code predates the paper's notation. Planner / Solver / Curator are the
-# components c1 / c2 / c3; the section `ccqs` configures CCME (heads E_q, E_m, called
-# Ep / Es in the code); the "skill book" is the memory bank. README.md has the full map.
 
 run:
   scope: streaming          # one pass over the stream, memory carried across items
@@ -28,7 +24,7 @@ llm:                        # backbone block is merged in from configs/models/
   backoff_base_s: 1.0
   backoff_max_s: 30.0
   max_parse_retries: 2
-  components: {}            # optional per-role overrides: {c1: {...}, c2: {...}, c3: {...}}
+  components: {}            # optional per-role overrides: {planner: {...}, solver: {...}, curator: {...}}
 
 retrieval:                  # Eq. (3) + MMR
   top_k: 3                  # K, retrieved entries per query
@@ -39,7 +35,7 @@ retrieval:                  # Eq. (3) + MMR
   domain_partial_credit: 0.6  # sibling subdomain (e.g. math.algebra vs math.geometry)
   mmr_lambda: 0.7           # lambda_MMR
 
-ccqs:                       # CCME, Eq. (11)
+ccme:                       # CCME heads E_q / E_m, Eq. (11)
   enabled: true             # false = frozen encoder (the "w/o CCME" ablation)
   k_upd: 3                  # one AdamW step every k_upd queries ...
   min_pairs: 4              # ... once at least n_min trainable pairs are buffered

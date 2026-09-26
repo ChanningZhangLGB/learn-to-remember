@@ -23,7 +23,7 @@ def collect_pairs(run):
     for l in open(os.path.join(run, "steps.jsonl")):
         s = json.loads(l); r = ret.get(s["step"])
         if not r or not r.get("candidates"): continue
-        view = {c["entry_id"]: c["skill_view"] for c in r["candidates"]}
+        view = {c["entry_id"]: c.get("identity_view", c.get("skill_view")) for c in r["candidates"]}
         att = s["curation"]["attribution"]
         pos = [view[i] for i in att.get("used_positive", []) if i in view]
         neg = [view[i] for b in NEG for i in att.get(b, []) if i in view]
@@ -34,12 +34,13 @@ def collect_pairs(run):
 
 def per_anchor(pairs, base, W):
     """(anchors, 2): mean cosine of each anchor to its helpful and to its harmful entries."""
-    ep, es = W["ep"], W["es"]
+    eq = W["eq"] if "eq" in W else W["ep"]      # runs recorded before the rename used ep/es
+    em = W["em"] if "em" in W else W["es"]
     out = []
     for p in pairs:
-        q = l2_normalize(base[p["q"]][None] @ ep.T)[0]
-        sp = l2_normalize(np.array([base[t] for t in p["pos"]]) @ es.T) @ q
-        sn = l2_normalize(np.array([base[t] for t in p["neg"]]) @ es.T) @ q
+        q = l2_normalize(base[p["q"]][None] @ eq.T)[0]
+        sp = l2_normalize(np.array([base[t] for t in p["pos"]]) @ em.T) @ q
+        sn = l2_normalize(np.array([base[t] for t in p["neg"]]) @ em.T) @ q
         out.append((float(sp.mean()), float(sn.mean())))
     return np.array(out)
 

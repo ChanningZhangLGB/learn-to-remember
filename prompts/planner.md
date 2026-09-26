@@ -1,4 +1,4 @@
-# C1 — Context probe and planner
+# Planner — Context probe and planner
 
 ## Persona
 

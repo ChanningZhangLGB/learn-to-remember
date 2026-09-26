@@ -2,7 +2,7 @@
 
 The scoring rule is the convex combination from the design document:
 
-    score(x, s) = alpha * sim(Ep(x), Es(s)) + (1 - alpha) * r_hat(s)
+    score(x, s) = alpha * sim(E_q(x), E_m(s)) + (1 - alpha) * r_hat(s)
 
 with both terms in [0, 1] so the weights mean what they say. `r_hat` is a Beta posterior
 mean and is bounded by construction; `sim` is a cosine and is **not**, so it is clamped at
@@ -22,7 +22,7 @@ zero before the mix. Two details make it behave:
   well-established entry clears any floor on reliability alone -- at alpha=0.7 an entry
   with sim 0.1 and r_hat 0.95 scores 0.355, which would pass a floor set on the mixed
   score. Gating on raw similarity keeps "nothing here is relevant" reachable, which is the
-  cold-start and no-match path: an empty result is a normal outcome, and C2 handles k=0.
+  cold-start and no-match path: an empty result is a normal outcome, and Solver handles k=0.
   Returning the least-bad entry instead spends context and invites force-fitting.
 
 * **alpha is weaker early than it looks.** With no evidence r_hat is exactly 0.5 for every
@@ -39,8 +39,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .schema import PlannerOutput, SkillEntry, domain_affinity
-from .store import SkillBook
+from .schema import PlannerOutput, MemoryEntry, domain_affinity
+from .memory import MemoryBank
 
 
 def parse_threshold(value) -> float | None:
@@ -58,7 +58,7 @@ def parse_threshold(value) -> float | None:
 
 @dataclass
 class RetrievedRef:
-    entry: SkillEntry
+    entry: MemoryEntry
     raw_sim: float
     score: float
     domain_affinity: float
@@ -68,17 +68,17 @@ class RetrievedRef:
         return self.entry.id
 
     @property
-    def skill_view(self) -> str:
-        """The exact string Es encoded, captured for the CCQS training pair."""
-        return self.entry.skill_view()
+    def identity_view(self) -> str:
+        """The exact string E_m encoded, captured for the CCME training pair."""
+        return self.entry.identity_view()
 
 
 def _render_for_prompt(refs: list[RetrievedRef]) -> str:
     """The full entry goes to the solver -- everything except meta.
 
-    Retrieval indexes `skill_view` (title, domain, tags) but the solver needs the bullets
+    Retrieval indexes `identity_view` (title, domain, tags) but the solver needs the bullets
     and the example, which are the actionable part. meta is withheld: it is our usage
-    bookkeeping, and showing helpful/harmful counts to C2 would let the solver defer to a
+    bookkeeping, and showing helpful/harmful counts to Solver would let the solver defer to a
     popularity statistic instead of judging the note on its merits.
     """
     if not refs:
@@ -97,18 +97,18 @@ def _render_for_prompt(refs: list[RetrievedRef]) -> str:
 
 
 class Retriever:
-    def __init__(self, book: SkillBook, cfg: dict) -> None:
-        self.book = book
+    def __init__(self, memory: MemoryBank, cfg: dict) -> None:
+        self.memory = memory
         self.cfg = cfg or {}
 
     def retrieve(self, plan: PlannerOutput, step: int) -> list[RetrievedRef]:
         cfg = self.cfg
-        candidates = self.book.active()
+        candidates = self.memory.active()
         if not candidates:
             return []                                    # cold start: a normal outcome
 
-        qvec = self.book.encoder.encode_query(plan.query_view())
-        mat = np.stack([self.book.vector(e) for e in candidates])
+        qvec = self.memory.encoder.encode_query(plan.query_view())
+        mat = np.stack([self.memory.vector(e) for e in candidates])
         sims = mat @ qvec                                # both sides L2-normalized
 
         mode = cfg.get("domain_filter", "soft")
@@ -158,7 +158,7 @@ class Retriever:
         if len(ranked) <= 1 or lam >= 1.0:
             return ranked[:k]
 
-        vecs = {r.id: self.book.vector(r.entry) for r in ranked}
+        vecs = {r.id: self.memory.vector(r.entry) for r in ranked}
         selected = [ranked[0]]
         pool = ranked[1:]
         while pool and len(selected) < k:
@@ -176,5 +176,5 @@ class Retriever:
 
     @staticmethod
     def render(refs: list[RetrievedRef]) -> str:
-        """Format the slate for the C2 prompt's {{references}} slot."""
+        """Format the slate for the Solver prompt's {{references}} slot."""
         return _render_for_prompt(refs)

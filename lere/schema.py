@@ -44,7 +44,7 @@ TAG_EXAMPLES = {
 def vocabulary_block() -> str:
     """The closed vocabularies, rendered for a prompt.
 
-    C1's and C3's prompts used to say "the closed list in `taxonomy.md`" while nothing
+    Planner's and Curator's prompts used to say "the closed list in `taxonomy.md`" while nothing
     ever put that list in front of the model, so it invented values -- `number_theory`
     for `math.number_theory`, `mathematics` for a domain, bare `divisibility` for a tag --
     every one of which was coerced to `other` or dropped, and an entry whose tags were all
@@ -75,7 +75,7 @@ def vocabulary_block() -> str:
     return "\n".join(lines)
 
 
-# C3's diagnosis of a failure. Closed because it is now load-bearing: it modulates how
+# Curator's diagnosis of a failure. Closed because it is now load-bearing: it modulates how
 # much blame a note takes when the answer was wrong (`curate.apply_attribution`), and a
 # free-text value would silently fall through to the default factor.
 ROOT_CAUSES = (
@@ -181,7 +181,7 @@ class EntryMeta:
 
 
 @dataclass
-class SkillEntry:
+class MemoryEntry:
     id: str
     title: str
     bullets: list[str]
@@ -191,8 +191,8 @@ class SkillEntry:
     status: str = "active"
     meta: EntryMeta = field(default_factory=EntryMeta)
 
-    def skill_view(self) -> str:
-        """The only text Es ever encodes: the entry's identity, without its steps.
+    def identity_view(self) -> str:
+        """The only text E_m ever encodes: the entry's identity, without its steps.
 
         Bullets are excluded on purpose, and the same rendering serves both retrieval and
         consolidation. Two reasons they now agree:
@@ -203,10 +203,10 @@ class SkillEntry:
           score around 0.71, below any merge threshold, and both get written.
         * Retrieval indexes a short key and *presents* the full entry. That is standard
           dense-retrieval practice, and it makes the query and skill towers symmetric at
-          concept level, which is the geometry CCQS is training.
+          concept level, which is the geometry CCME is training.
 
         The cost is that this string is short and low-entropy, so sibling entries collide
-        under a frozen base encoder. Separating them is precisely Es's job.
+        under a frozen base encoder. Separating them is precisely E_m's job.
         """
         return f"{self.title} | domain: {self.domain} | skills: {', '.join(self.tags)}"
 
@@ -215,16 +215,16 @@ class SkillEntry:
         return d
 
     @staticmethod
-    def from_dict(d: dict) -> "SkillEntry":
+    def from_dict(d: dict) -> "MemoryEntry":
         meta = EntryMeta(**d.get("meta", {}))
-        return SkillEntry(
+        return MemoryEntry(
             id=d["id"], title=d["title"], bullets=list(d["bullets"]),
             example=d.get("example", ""), domain=d["domain"], tags=list(d["tags"]),
             status=d.get("status", "active"), meta=meta,
         )
 
 
-# ---------------------------------------------------------------- C1 output
+# ---------------------------------------------------------------- Planner output
 
 @dataclass
 class PlannerOutput:
@@ -237,11 +237,11 @@ class PlannerOutput:
     tool_expected: bool = False
 
     def query_view(self) -> str:
-        """Text encoded by Ep. Same template shape as SkillEntry.skill_view.
+        """Text encoded by E_q. Same template shape as MemoryEntry.identity_view.
 
-        Built here rather than taken from C1's `retrieval_query`, which is diagnostic
-        only. Two reasons, both structural: a deterministic template guarantees Ep and Es
-        see the *same* shape of string, which is the symmetry CCQS trains; and a
+        Built here rather than taken from Planner's `retrieval_query`, which is diagnostic
+        only. Two reasons, both structural: a deterministic template guarantees E_q and E_m
+        see the *same* shape of string, which is the symmetry CCME trains; and a
         model-authored key varies run to run, so `sim_threshold` would be calibrated
         against a moving target.
 
@@ -267,7 +267,7 @@ class PlannerOutput:
         )
 
 
-# ---------------------------------------------------------------- C2 output
+# ---------------------------------------------------------------- Solver output
 
 @dataclass
 class SolverOutput:
@@ -312,14 +312,14 @@ class SolverOutput:
         )
 
 
-# ---------------------------------------------------------------- C3 output
+# ---------------------------------------------------------------- Curator output
 
 def audit_solver_verdict(solver: "SolverOutput", retrieved_ids: list[str],
                          violations: VocabViolations) -> None:
-    """Count C2 breaking rule 5 of its own prompt: every note exactly once.
+    """Count Solver breaking rule 5 of its own prompt: every note exactly once.
 
-    Nothing downstream depends on the solver's verdict -- C3's attribution is what feeds
-    evidence and CCQS labels -- so this cannot be enforced without discarding a solved
+    Nothing downstream depends on the solver's verdict -- Curator's attribution is what feeds
+    evidence and CCME labels -- so this cannot be enforced without discarding a solved
     item. It is counted instead: a rise in these numbers is a prompt regression, and
     without a counter it would be invisible.
     """
@@ -344,8 +344,8 @@ class ProposedEntry:
     domain: str
     tags: list[str]
 
-    def skill_view(self) -> str:
-        """See SkillEntry.skill_view -- identity without steps, for Es and consolidation."""
+    def identity_view(self) -> str:
+        """See MemoryEntry.identity_view -- identity without steps, for E_m and consolidation."""
         return f"{self.title} | domain: {self.domain} | skills: {', '.join(self.tags)}"
 
 
@@ -375,7 +375,7 @@ class CuratorOutput:
                 if not isinstance(mid, str):
                     continue
                 if mid not in retrieved_ids:
-                    violations.bump("attribution_hallucinated_id")   # id never shown to C3
+                    violations.bump("attribution_hallucinated_id")   # id never shown to Curator
                     continue
                 if mid in seen:
                     violations.bump("attribution_duplicate_id")

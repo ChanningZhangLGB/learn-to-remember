@@ -6,11 +6,11 @@ at batch granularity when items are processed in parallel (MMLU-Pro is ~12k item
 be), and it removes the concurrent read-modify-write race that otherwise produces duplicate
 entries and lost counter updates. `batch_size = 1` is pure online.
 
-C2 runs as a bounded loop rather than a single call: it may write a program, receive what
+Solver runs as a bounded loop rather than a single call: it may write a program, receive what
 it actually printed, and reason on from there. The loop is driven entirely prompt-side --
 the transcript of previous calls is rendered into the next prompt -- so the `LLM` protocol
 stays a one-shot `complete_json` and a provider client remains a thin wrapper. See
-`lere/tools.py` for the executor and the reason its output overwrites what C2 claims.
+`lere/tools.py` for the executor and the reason its output overwrites what Solver claims.
 """
 
 from __future__ import annotations
@@ -21,13 +21,13 @@ from dataclasses import dataclass, field
 from typing import Any, Sequence
 
 from .answers import is_correct, normalize_mcq
-from .ccqs import CCQSTrainer
+from .ccme import CCMETrainer
 from .curate import apply_attribution, consolidate_and_write, maintenance_pass
 from .llm import LLM, extract_json, load_prompt, render
 from .retrieve import Retriever
 from .schema import (CuratorOutput, PlannerOutput, SolverOutput, VocabViolations,
                      audit_solver_verdict, vocabulary_block)
-from .store import SkillBook
+from .memory import MemoryBank
 from .tools import ToolConfig, ToolTranscript, probe_modules, run_python
 from .verify import VerificationSignal, build_signal, resolve_verdict
 
@@ -62,19 +62,19 @@ class StepRecord:
     created: list[str] = field(default_factory=list)
     merged: list[str] = field(default_factory=list)
     rejected: list[tuple[str, str]] = field(default_factory=list)
-    book_size: int = 0
+    memory_size: int = 0
     latency_s: float = 0.0
     llm_calls: int = 0
-    ccqs_pair: bool = False
+    ccme_pair: bool = False
     # The curator's own verdict, and whether it displaced the mechanical signal. Recorded
-    # per item because the disagreement rate between C3 and each source is the number that
+    # per item because the disagreement rate between Curator and each source is the number that
     # says how much the label-free supervision is actually worth.
     curator_correct: bool | None = None
     verdict_overridden: bool = False
-    # C3's failure diagnosis. Recorded per step because it now modulates blame, and its
+    # Curator's failure diagnosis. Recorded per step because it now modulates blame, and its
     # distribution has never been measured against anything.
     root_cause: str = "none"
-    ccqs_pair_from_wrong_answer: bool = False
+    ccme_pair_from_wrong_answer: bool = False
     tool_expected: bool = False
     tool_calls: int = 0
     tool_failures: int = 0
@@ -85,7 +85,7 @@ class StepRecord:
 class _Pending:
     """One completed read-phase item, waiting for the batch boundary.
 
-    Views are captured at retrieval time so a later merge cannot change what a CCQS
+    Views are captured at retrieval time so a later merge cannot change what a CCME
     training pair was labelled against.
     """
     item: Item
@@ -102,7 +102,7 @@ class _Pending:
 class RunReport:
     steps: list[StepRecord] = field(default_factory=list)
     violations: VocabViolations = field(default_factory=VocabViolations)
-    ccqs: dict = field(default_factory=dict)
+    ccme: dict = field(default_factory=dict)
     permutation_seed: int | None = None
 
     @property
@@ -157,7 +157,7 @@ class RunReport:
     def tool_success_rate(self) -> float:
         """Fraction of executions that ran and exited zero.
 
-        A low value is a solver problem, not a harness problem -- it means C2 is writing
+        A low value is a solver problem, not a harness problem -- it means Solver is writing
         code that does not run, and every failure burned a call. Watch it during the pilot
         and cap `tools.max_calls_per_item` accordingly."""
         calls = sum(s.tool_calls for s in self.steps)
@@ -205,30 +205,30 @@ class RunReport:
             "tool_success_rate": round(self.tool_success_rate, 3),
             "tool_agreement": round(self.tool_agreement, 4),
             "permutation_seed": self.permutation_seed,
-            "ccqs": self.ccqs,
+            "ccme": self.ccme,
             "violations": dict(self.violations),
         }
 
 
 class Pipeline:
-    def __init__(self, book: SkillBook, llm: LLM, cfg: dict) -> None:
-        self.book = book
+    def __init__(self, memory: MemoryBank, llm: LLM, cfg: dict) -> None:
+        self.memory = memory
         self.llm = llm
         self.cfg = cfg
-        self.retriever = Retriever(book, cfg.get("retrieval", {}))
-        self.ccqs = CCQSTrainer(book.encoder, cfg.get("ccqs", {}))
+        self.retriever = Retriever(memory, cfg.get("retrieval", {}))
+        self.ccme = CCMETrainer(memory.encoder, cfg.get("ccme", {}))
         self.tools = ToolConfig.from_cfg(cfg.get("tools", {}))
         # Probed once per run, through the executor, and cached. See tools.probe_modules.
         self._modules = (probe_modules(self.tools) if self.tools.enabled else [])
         # `prompts.dir` selects an alternative prompt set (default `prompts/`). The
         # resolved path is recorded so a run's report says which set produced it.
         self.prompt_dir = (cfg.get("prompts") or {}).get("dir")
-        self.p_c1 = load_prompt("c1_planner.md", self.prompt_dir)
-        self.p_c2 = load_prompt("c2_solver.md", self.prompt_dir)
-        self.p_c3 = load_prompt("c3_curator.md", self.prompt_dir)
+        self.p_planner = load_prompt("planner.md", self.prompt_dir)
+        self.p_solver = load_prompt("solver.md", self.prompt_dir)
+        self.p_curator = load_prompt("curator.md", self.prompt_dir)
         # Optional observer, fired once per completed step at the end of the write phase.
         # None by default and never consulted otherwise, so it cannot change a run; it
-        # exists because a demo needs the book, the heads and the loss AFTER the update,
+        # exists because a demo needs the memory, the heads and the loss AFTER the update,
         # and reconstructing that from outside would mean reimplementing `_flush`.
         self.on_step = None
 
@@ -236,17 +236,17 @@ class Pipeline:
 
     def plan(self, item: Item, violations: VocabViolations) -> PlannerOutput:
         prompt = render(
-            self.p_c1, query=item.question, image_present=str(item.image is not None),
+            self.p_planner, query=item.question, image_present=str(item.image is not None),
             answer_type=item.answer_type, dataset=item.dataset,
             tools_available=str(self.tools.enabled).lower(),
             vocabulary=vocabulary_block(),
         )
-        raw = self.llm.complete_json(prompt, component="c1", image=item.image)
+        raw = self.llm.complete_json(prompt, component="planner", image=item.image)
         return PlannerOutput.parse(raw, violations)
 
     def solve(self, item: Item, refs, plan: PlannerOutput,
               violations: VocabViolations) -> tuple[SolverOutput, ToolTranscript, int]:
-        """Run C2 to a final answer, executing any code it asks for along the way.
+        """Run Solver to a final answer, executing any code it asks for along the way.
 
         Returns the parsed output, the execution transcript, and the number of LLM calls
         spent -- which is variable now, and is the denominator of the matched-cost
@@ -254,7 +254,7 @@ class Pipeline:
 
         A turn that asks for a tool is not an answer, so it does not count against the
         item; a turn that answers ends the loop. The budget is bounded twice over: by
-        `max_calls_per_item`, and by a final forced turn that tells C2 its budget is gone
+        `max_calls_per_item`, and by a final forced turn that tells Solver its budget is gone
         and it must commit. Without the forced turn a model that keeps requesting tools
         would never produce an answer and the item would fail for a reason that has
         nothing to do with the question.
@@ -266,7 +266,7 @@ class Pipeline:
         while True:
             exhausted = transcript.calls >= budget
             prompt = render(
-                self.p_c2, query=item.question, answer_type=item.answer_type,
+                self.p_solver, query=item.question, answer_type=item.answer_type,
                 k=len(refs), references=Retriever.render(refs),
                 tools_available=str(self.tools.enabled).lower(),
                 tool_expected=str(plan.tool_expected).lower(),
@@ -276,7 +276,7 @@ class Pipeline:
                 available_modules=(", ".join("`%s`" % m for m in self._modules)
                                    or "(the standard library only)"),
             )
-            raw = self.llm.complete_json(prompt, component="c2", image=item.image)
+            raw = self.llm.complete_json(prompt, component="solver", image=item.image)
             calls += 1
 
             wants_tool = (
@@ -333,7 +333,7 @@ class Pipeline:
                                violations: VocabViolations) -> None:
         """Replace the solver's claim about its own program with what the program did.
 
-        The failure this closes: C2's prompt asks for `coding_result`, C3's prompt is
+        The failure this closes: Solver's prompt asks for `coding_result`, Curator's prompt is
         handed that string as evidence, and before `tools.py` existed nothing had ever run
         the code -- so the field was the model's guess at its own output, presented
         downstream as a measurement. Overwriting it means a model that misreports cannot
@@ -358,30 +358,30 @@ class Pipeline:
     def curate(self, item: Item, refs, solver: SolverOutput, transcript: ToolTranscript,
                signal: VerificationSignal, violations: VocabViolations) -> CuratorOutput:
         prompt = render(
-            self.p_c3, query=item.question, references=Retriever.render(refs),
+            self.p_curator, query=item.question, references=Retriever.render(refs),
             solver_output=_solver_digest(solver, transcript),
             signal_source=signal.source,
             signal_correct="null" if signal.correct is None else str(signal.correct).lower(),
             signal_confidence=f"{signal.confidence:.2f}", signal_detail=signal.detail,
             vocabulary=vocabulary_block(),
         )
-        raw = self.llm.complete_json(prompt, component="c3", image=item.image)
+        raw = self.llm.complete_json(prompt, component="curator", image=item.image)
         return CuratorOutput.parse(raw, [r.id for r in refs], violations)
 
     # ------------------------------------------------------------------- loop
 
     def run(self, items: Sequence[Item], report: RunReport | None = None) -> RunReport:
-        """One streaming pass. The book starts empty and Ep/Es start at identity.
+        """One streaming pass. The memory starts empty and E_q/E_m start at identity.
 
         Both resets are required for the prequential protocol to hold across repeated
         runs. `pass@1` over 5-10 runs means 5-10 *independent* passes; if the heads or the
-        book carried over, run n would answer items whose labels had already shaped the
+        memory carried over, run n would answer items whose labels had already shaped the
         retriever in runs 1..n-1, and an item would no longer be predicted before its own
         label was used. Vary `run.seed` across those runs so they differ in question
         order -- repeating one order only measures decoding noise.
 
-        `reset_per_run` empties the book as well as the heads. It used to reset only the
-        heads, so a caller looping this method to collect pass@1 carried the book silently
+        `reset_per_run` empties the memory as well as the heads. It used to reset only the
+        heads, so a caller looping this method to collect pass@1 carried the memory silently
         from pass to pass and accuracy drifted upward for a reason that had nothing to do
         with the method.
         """
@@ -391,15 +391,15 @@ class Pipeline:
         write_enabled = bool(run_cfg.get("write_enabled", True))
 
         if bool(run_cfg.get("reset_per_run", True)):
-            # The book is emptied only on a writing pass. A frozen pass (SPEC section 1)
-            # reads a book built elsewhere on a disjoint corpus -- that book IS the
+            # The memory is emptied only on a writing pass. A frozen pass (SPEC section 1)
+            # reads a memory built elsewhere on a disjoint corpus -- that memory IS the
             # experiment, and clearing it would leave the frozen arm retrieving from
             # nothing while still reporting a number. The heads reset either way: they are
-            # cheap to rebuild, CCQS does not train on a frozen pass, and identity is the
+            # cheap to rebuild, CCME does not train on a frozen pass, and identity is the
             # defined starting state.
             if write_enabled:
-                self.book.reset()
-            self.ccqs.reset()
+                self.memory.reset()
+            self.ccme.reset()
 
         ordered = list(items)
         seed = run_cfg.get("seed")
@@ -417,7 +417,7 @@ class Pipeline:
                     step=step, item_id=item.id, dataset=item.dataset, domain="other",
                     retrieved=[], answer="", gold=item.gold, correct=False,
                     signal_source="none", signal_confidence=0.0,
-                    book_size=len(self.book), error=f"{type(exc).__name__}: {exc}",
+                    memory_size=len(self.memory), error=f"{type(exc).__name__}: {exc}",
                 ))
                 continue
 
@@ -429,18 +429,18 @@ class Pipeline:
         if write_enabled and pending:
             self._flush(pending, report)
         elif pending:
-            # Frozen pass: no evidence, no entries, and no CCQS intake -- the book and the
+            # Frozen pass: no evidence, no entries, and no CCME intake -- the memory and the
             # heads are both read-only. Retrieval bookkeeping is still recorded so the
             # frozen arm reports which entries it actually used.
             for p in pending:
-                self.book.note_retrieved(p.record.retrieved, p.record.step)
+                self.memory.note_retrieved(p.record.retrieved, p.record.step)
                 report.steps.append(p.record)
 
-        report.ccqs = self.ccqs.stats.summary()
+        report.ccme = self.ccme.stats.summary()
         return report
 
     def _process(self, item: Item, step: int, report: RunReport) -> _Pending:
-        """Read-only phase: plan, retrieve against the frozen book, solve, verify, curate."""
+        """Read-only phase: plan, retrieve against the frozen memory, solve, verify, curate."""
         v = report.violations
         t0 = time.perf_counter()
 
@@ -458,15 +458,15 @@ class Pipeline:
             samples=samples, code=solver.coding,
             recorded=transcript.last_success, recorded_runs=transcript.successes,
             question=item.question,
-            # The judge source is C2's own confidence, which is the only self-report that
-            # exists before C3 runs. Capped downstream; see verify.signal_from_judge.
+            # The judge source is Solver's own confidence, which is the only self-report that
+            # exists before Curator runs. Capped downstream; see verify.signal_from_judge.
             judge_correct=(solver.confidence >= 0.5),
             judge_confidence=solver.confidence, cfg=vcfg,
         )
         curation = self.curate(item, refs, solver, transcript, signal, v)
 
-        # C3 has now read the reasoning. On every source but `gt` its verdict is the label
-        # that assigns credit and gates CCQS intake; `gt` is ground truth and stands.
+        # Curator has now read the reasoning. On every source but `gt` its verdict is the label
+        # that assigns credit and gates CCME intake; `gt` is ground truth and stands.
         signal, overridden = resolve_verdict(signal, curation.correct, vcfg)
         if overridden:
             v.bump("curator_overrode_signal")
@@ -496,9 +496,9 @@ class Pipeline:
             root_cause=curation.root_cause,
             used_positive=list(curation.attribution.get("used_positive", [])),
             used_negative=list(curation.attribution.get("used_negative", [])),
-            book_size=len(self.book),
+            memory_size=len(self.memory),
             latency_s=time.perf_counter() - t0,
-            llm_calls=1 + solver_calls + sample_calls + 1,   # C1 + C2 turns + votes + C3
+            llm_calls=1 + solver_calls + sample_calls + 1,   # Planner + Solver turns + votes + Curator
             tool_expected=plan.tool_expected,
             tool_calls=transcript.calls,
             tool_failures=transcript.failures,
@@ -506,7 +506,7 @@ class Pipeline:
         return _Pending(
             item=item, refs=refs, solver=solver, signal=signal, curation=curation,
             record=record, query_view=plan.query_view(),
-            ref_views={r.id: r.skill_view for r in refs},
+            ref_views={r.id: r.identity_view for r in refs},
         )
 
     def _consistency_samples(self, item: Item, refs, plan: PlannerOutput,
@@ -542,45 +542,45 @@ class Pipeline:
     def _flush(self, pending: list[_Pending], report: RunReport) -> None:
         """Write phase: apply the batch's buffered evidence and entries in order.
 
-        CCQS intake happens here, after the item has been answered and scored, which is
+        CCME intake happens here, after the item has been answered and scored, which is
         what makes the protocol prequential rather than transductive.
         """
         for p in pending:
             # Retrieval bookkeeping is a write, so it lands here rather than inside
             # `Retriever.retrieve` -- the read phase must see a frozen snapshot.
-            self.book.note_retrieved(p.record.retrieved, p.record.step)
+            self.memory.note_retrieved(p.record.retrieved, p.record.step)
 
-            apply_attribution(self.book, p.curation, p.signal,
+            apply_attribution(self.memory, p.curation, p.signal,
                               self.cfg.get("verification", {}), p.item.id, p.record.step)
 
-            pair = self.ccqs.observe(p.query_view, p.ref_views, p.curation.attribution,
+            pair = self.ccme.observe(p.query_view, p.ref_views, p.curation.attribution,
                                      p.record.step, correct=p.signal.correct)
-            p.record.ccqs_pair = pair is not None
-            p.record.ccqs_pair_from_wrong_answer = (
+            p.record.ccme_pair = pair is not None
+            p.record.ccme_pair_from_wrong_answer = (
                 pair is not None and pair.answer_correct is False)
 
             if p.curation.proposed_entries:
                 res = consolidate_and_write(
-                    self.book, p.curation.proposed_entries, p.item.question, p.item.gold,
+                    self.memory, p.curation.proposed_entries, p.item.question, p.item.gold,
                     p.item.answer_type, self.cfg, p.item.id, p.record.step,
                 )
                 p.record.created = res.created
                 p.record.merged = res.merged
                 p.record.rejected = res.rejected
 
-            maintenance_pass(self.book, self.cfg, p.item.id, p.record.step)
-            p.record.book_size = len(self.book)
+            maintenance_pass(self.memory, self.cfg, p.item.id, p.record.step)
+            p.record.memory_size = len(self.memory)
             report.steps.append(p.record)
 
-            loss = self.ccqs.maybe_update(p.record.step)
+            loss = self.ccme.maybe_update(p.record.step)
             if self.on_step is not None:
                 self.on_step(p, report, loss)
 
 
 def _solver_digest(solver: SolverOutput, transcript: ToolTranscript | None = None) -> str:
-    """Reconstruct C2's output for the C3 prompt, verbatim in content.
+    """Reconstruct Solver's output for the Curator prompt, verbatim in content.
 
-    When code ran, the real transcript is included and labelled as executed. C3's job is
+    When code ran, the real transcript is included and labelled as executed. Curator's job is
     to catch errors the solver missed, and the difference between "the solver says its
     program printed 204" and "the program printed 204" is most of what makes that
     possible.

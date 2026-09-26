@@ -1,7 +1,7 @@
 """LLM interface and prompt rendering.
 
 Deliberately thin: one `complete_json` method. Swapping providers or models must not touch
-pipeline logic, and the components must stay separable so C1/C2/C3 can run on different
+pipeline logic, and the components must stay separable so Planner/Solver/Curator can run on different
 models (a common and useful ablation -- a small planner with a large solver).
 """
 
@@ -118,8 +118,8 @@ class EchoLLM:
     -- parsing, guard, consolidation, evidence -- without pretending to solve anything.
 
     `tool_code` makes it request one execution before answering, which is the only way to
-    exercise the C2 tool loop without a provider. The stub emits the tool action on its
-    first C2 turn and the answer on every turn after, so the loop terminates whatever the
+    exercise the Solver tool loop without a provider. The stub emits the tool action on its
+    first Solver turn and the answer on every turn after, so the loop terminates whatever the
     budget is.
     """
 
@@ -129,17 +129,17 @@ class EchoLLM:
         self.tool_code = tool_code
         self.claim_result = claim_result
         self.calls: list[str] = []
-        self._c2_turns = 0
+        self._solver_turns = 0
 
     def complete_json(self, prompt: str, *, component: str,
                       image: bytes | None = None) -> dict:
         self.calls.append(component)
-        if component == "c1":
-            # C1 marks the start of a new item, which is what resets the per-item tool
+        if component == "planner":
+            # Planner marks the start of a new item, which is what resets the per-item tool
             # budget. Without this the stub emits a tool action on the first item of a run
             # and never again, and a multi-item smoke test silently exercises the tool
             # loop once instead of every step.
-            self._c2_turns = 0
+            self._solver_turns = 0
             return {
                 "semantic_context": "placeholder problem type from the echo stub",
                 "visual_context": None,
@@ -149,9 +149,9 @@ class EchoLLM:
                 "tool_expected": self.tool_code is not None,
                 "reason": "stub",
             }
-        if component == "c2":
-            self._c2_turns += 1
-            if self.tool_code is not None and self._c2_turns == 1:
+        if component == "solver":
+            self._solver_turns += 1
+            if self.tool_code is not None and self._solver_turns == 1:
                 return {"action": "tool", "tool": "python", "code": self.tool_code,
                         "why": "stub execution"}
             return {
@@ -164,7 +164,7 @@ class EchoLLM:
                 "answer": self.answer,
                 "confidence": 0.1,
             }
-        if component == "c3":
+        if component == "curator":
             return {
                 "verification": {
                     "correct": False, "reasoning_sound": False,

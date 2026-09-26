@@ -1,17 +1,17 @@
-"""CCQS -- Contrastive Contextual Query-Skillbook encoder training (CCME in the paper).
+"""CCME -- Contrastive Contextual Memory Encoder: online training of the heads E_q, E_m.
 
-Ep and Es are fitted online from the curator's attribution. After each query a training
+E_q and E_m are fitted online from the curator's attribution. After each query a training
 pair is buffered; every `k_upd` steps the buffer is replayed and the heads take a few
 gradient steps on
 
-    L_ccqs = - sum_i log [ exp(sim(Ep(x_i), Es(s_i^+)) / tau)
-                           / ( exp(sim(Ep(x_i), Es(s_i^+)) / tau)
-                               + sum_{s^- in N_i} exp(sim(Ep(x_i), Es(s^-)) / tau) ) ]
+    L_ccme = - sum_i log [ exp(sim(E_q(x_i), E_m(s_i^+)) / tau)
+                           / ( exp(sim(E_q(x_i), E_m(s_i^+)) / tau)
+                               + sum_{s^- in N_i} exp(sim(E_q(x_i), E_m(s^-)) / tau) ) ]
 
 Three decisions here are not free parameters:
 
 1. **`unused_redundant` is not a negative.** That bucket means *relevant, and correct, but
-   already covered by another retrieved entry*. Training Ep/Es to push it away from the
+   already covered by another retrieved entry*. Training E_q/E_m to push it away from the
    query teaches the encoder that a genuinely matching skill does not match. Negatives are
    `used_negative` and `unused_irrelevant` only.
 
@@ -26,7 +26,7 @@ Three decisions here are not free parameters:
    and it depends on the heads being reset between runs -- see `DualEncoder.reset_heads`.
 
 Realistic yield is the limiting factor, not the objective. A ~180-item AIME run starting
-from an empty book produces on the order of 10^2 positive pairs; that is enough to move a
+from an empty memory produces on the order of 10^2 positive pairs; that is enough to move a
 single linear head slightly and not enough to demonstrate anything. MMLU-Pro (~12k) is the
 only benchmark here with the stream length to show a real effect.
 """
@@ -45,7 +45,7 @@ NEGATIVE_BUCKETS = ("used_negative", "unused_irrelevant")
 
 
 @dataclass
-class CCQSPair:
+class CCMEPair:
     """One anchor query with the skills the curator judged useful, and those it did not."""
     query_view: str
     positives: list[str] = field(default_factory=list)     # skill views
@@ -60,7 +60,7 @@ class CCQSPair:
 
 
 @dataclass
-class CCQSStats:
+class CCMEStats:
     updates: int = 0
     pairs_seen: int = 0
     pairs_buffered: int = 0
@@ -80,11 +80,11 @@ class CCQSStats:
         }
 
 
-class CCQSTrainer:
+class CCMETrainer:
     """Owns the pair buffer, the optimizer, and the update schedule.
 
     Disabled (`enabled: false`) it is a no-op that still counts pairs, so the ablation
-    "CCQS on vs. off" runs the identical code path with the identical book dynamics and
+    "CCME on vs. off" runs the identical code path with the identical memory dynamics and
     differs only in whether the heads move.
     """
 
@@ -100,8 +100,8 @@ class CCQSTrainer:
         self.steps_per_update = int(cfg.get("steps_per_update", 1))
         self.min_pairs = int(cfg.get("min_pairs", 4))
         self.max_negatives = int(cfg.get("max_negatives", 32))
-        self.buffer: deque[CCQSPair] = deque(maxlen=int(cfg.get("buffer_size", 512)))
-        self.stats = CCQSStats()
+        self.buffer: deque[CCMEPair] = deque(maxlen=int(cfg.get("buffer_size", 512)))
+        self.stats = CCMEStats()
         self._rng = random.Random(int(cfg.get("seed", 0)))
         self._opt = None
         self._torch = None
@@ -117,25 +117,25 @@ class CCQSTrainer:
             self.enabled = False
             return
         self._torch = torch
-        params = list(self.encoder.ep.module.parameters()) + \
-            list(self.encoder.es.module.parameters())
+        params = list(self.encoder.eq.module.parameters()) + \
+            list(self.encoder.em.module.parameters())
         self._opt = torch.optim.AdamW(params, lr=self.lr, weight_decay=self.weight_decay)
 
     # ------------------------------------------------------------------ intake
 
     def observe(self, query_view: str, ref_views: dict[str, str],
                 attribution: dict[str, list[str]], step: int,
-                correct: bool | None = None) -> CCQSPair | None:
+                correct: bool | None = None) -> CCMEPair | None:
         """Buffer one training pair from a completed step. Prequential: call after scoring.
 
         `ref_views` maps retrieved entry id -> its skill view, captured at retrieval time
         so a later merge cannot silently change what the pair was labelled on.
 
         `correct` is the curator's verdict on the answer. It is **recorded on the pair,
-        not used to gate it.** A CCQS positive asserts that this query should have
+        not used to gate it.** A CCME positive asserts that this query should have
         retrieved this entry, which is a relevance claim; a solver that had the right note
         and still slipped on the arithmetic does not make the note less relevant. Gating
-        on the outcome would also throw away pairs on precisely the items where the book
+        on the outcome would also throw away pairs on precisely the items where the memory
         is being built, and pair yield is already the binding constraint.
         The count is kept so the share of pairs drawn from failed items is measurable.
         """
@@ -153,7 +153,7 @@ class CCQSTrainer:
                 if i in ref_views and ref_views[i] not in positives:
                     negatives.append(ref_views[i])
 
-        pair = CCQSPair(query_view=query_view, positives=positives,
+        pair = CCMEPair(query_view=query_view, positives=positives,
                         hard_negatives=negatives, step=step, answer_correct=correct)
         self.buffer.append(pair)
         self.stats.pairs_seen += 1
@@ -237,13 +237,13 @@ class CCQSTrainer:
         self.stats.losses.append(mean)
         return mean
 
-    def _sample_batch(self) -> list[CCQSPair]:
+    def _sample_batch(self) -> list[CCMEPair]:
         pool = list(self.buffer)
         if len(pool) <= self.batch_size:
             return pool
         return self._rng.sample(pool, self.batch_size)
 
-    def _loss(self, batch: list[CCQSPair]):
+    def _loss(self, batch: list[CCMEPair]):
         """InfoNCE with hard negatives plus in-batch negatives.
 
         One anchor at a time because the candidate set is ragged: each anchor has its own
@@ -267,8 +267,8 @@ class CCQSTrainer:
 
         q_base = torch.from_numpy(self.encoder.base_vectors(q_texts))
         s_base = torch.from_numpy(self.encoder.base_vectors(s_texts))
-        q = self.encoder.ep.forward_torch(q_base)          # (B, d), L2-normalized
-        s = self.encoder.es.forward_torch(s_base)          # (S, d), L2-normalized
+        q = self.encoder.eq.forward_torch(q_base)          # (B, d), L2-normalized
+        s = self.encoder.em.forward_torch(s_base)          # (S, d), L2-normalized
 
         # All positives in the batch, so one anchor's positive is another's easy negative.
         all_pos = {t for p in batch for t in p.positives}
@@ -304,7 +304,7 @@ class CCQSTrainer:
     def reset(self) -> None:
         """Clear the buffer and re-initialize the heads. Start of every run."""
         self.buffer.clear()
-        self.stats = CCQSStats()
+        self.stats = CCMEStats()
         self.encoder.reset_heads()
         if self.enabled and self.encoder.trainable:
             self._build_optimizer()

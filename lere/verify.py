@@ -52,7 +52,7 @@ def signal_from_gt(pred: str, gold: str, answer_type: str,
                    n_options: int = 10, question: str | None = None) -> VerificationSignal:
     ok = is_correct(pred, gold, answer_type, n_options=n_options,
                     question=question)
-    # C3 reads `detail`, so in GT mode this is where the curator learns the gold answer
+    # Curator reads `detail`, so in GT mode this is where the curator learns the gold answer
     # (the same information ACE's Reflector receives in its GT arm). Say what it is and
     # how it may be used; the leak guard still rejects any entry that restates it.
     return VerificationSignal(
@@ -105,7 +105,7 @@ def signal_from_exec(code: str, expected: str, answer_type: str,
     A real signal with no labels -- the strongest option available in label-free mode on
     AIME and the numeric part of MathVista.
 
-    **Agreement here is weaker than it looks, and the confidences say so.** When C2 reads
+    **Agreement here is weaker than it looks, and the confidences say so.** When Solver reads
     its answer off its own program's output -- the normal pattern on AIME -- agreement is
     guaranteed by construction: a wrong program yields a wrong answer and the two still
     match. That checks transcription, not correctness. Disagreement is the informative
@@ -113,11 +113,11 @@ def signal_from_exec(code: str, expected: str, answer_type: str,
     reliably in trouble. So confidence is 0.5 on agreement and 0.9 on disagreement, the
     same asymmetry `consistency` uses and for the same reason.
 
-    `recorded` is the execution C2 already performed during its own reasoning
+    `recorded` is the execution Solver already performed during its own reasoning
     (`lere/tools.py`). Prefer it: re-running the same program costs a second subprocess
     and, worse, can disagree with the first if the code is not deterministic -- which
     would make the verification signal depend on which of two runs it happened to read.
-    Falling back to running the code covers `tools.enabled: false`, where C2 wrote code
+    Falling back to running the code covers `tools.enabled: false`, where Solver wrote code
     but nothing executed it.
 
     `recorded_runs` is every successful execution. `recorded` is the LAST of them, which
@@ -127,8 +127,8 @@ def signal_from_exec(code: str, expected: str, answer_type: str,
     which one the answer came from, so agreement is discounted further and the conflict is
     named in `detail`.
 
-    This is the *post-hoc check*, not the solver's tool. `lere/tools.py` runs during C2's
-    reasoning and feeds the result back to it; this runs afterwards and feeds C3.
+    This is the *post-hoc check*, not the solver's tool. `lere/tools.py` runs during Solver's
+    reasoning and feeds the result back to it; this runs afterwards and feeds Curator.
     """
     if recorded is not None:
         if not recorded.ok:
@@ -194,7 +194,7 @@ def signal_from_judge(judge_correct: bool | None, judge_confidence: float,
     `judge_correct` must be supplied by the caller. It used to default to None here and
     the pipeline never passed it, so this source returned `correct=None` for every item --
     a signal that moved no counter and taught nothing, while the config still claimed a
-    verification source was active. The pipeline now derives it from C2's own confidence
+    verification source was active. The pipeline now derives it from Solver's own confidence
     (`>= 0.5`), which is honest about what it is: the weakest source in the table, capped
     at `judge_confidence_cap` precisely because self-judging is optimistic.
     """
@@ -207,10 +207,10 @@ def signal_from_judge(judge_correct: bool | None, judge_confidence: float,
     )
 
 
-# Sources whose verdict C3 may not overrule. `gt` is ground truth: letting the curator
+# Sources whose verdict Curator may not overrule. `gt` is ground truth: letting the curator
 # second-guess a gold label would corrupt the supervised arm, which is the control the
 # `gt` vs `consistency` ablation depends on. Every other source is a model or a mechanical
-# check that can be, and on `exec` routinely is, wrong in a way C3 can see.
+# check that can be, and on `exec` routinely is, wrong in a way Curator can see.
 AUTHORITATIVE_SOURCES = ("gt",)
 
 
@@ -234,7 +234,7 @@ def resolve_verdict(signal: VerificationSignal, curator_correct: bool | None,
     the source label truthful.
 
     Confidence is never raised above `judge_confidence_cap`, because an overriding verdict
-    is C3's judgement rather than a stronger measurement. But it is not clamped *down* to a
+    is Curator's judgement rather than a stronger measurement. But it is not clamped *down* to a
     signal that had nothing to say: when the source returned `correct=None` (no code ran,
     no samples drawn) its confidence is 0.0, and carrying that through made the curator's
     verdict weightless. Two of the three `used_negative` events in the first 30-item runs

@@ -14,40 +14,56 @@ gate (Guard, Consolidate, Maintain) filters into the memory bank.
 
 ```
 learn-to-remember-AD37/
-├── lere/                            # Algorithm (LeRe core)
-│   ├── pipeline.py                  # Plan → retrieve → solve → curate loop (Algorithm 1)
-│   ├── retrieve.py                  # Retrieval score (Eq. 3) + MMR top-K selection
-│   ├── embed.py                     # Frozen encoder + CCME projection heads E_q / E_m
-│   ├── ccqs.py                      # CCME online contrastive training (Eq. 10-11)
-│   ├── curate.py                    # Credit assignment (Eq. 12) + Consolidate (merge / link)
-│   ├── guard.py                     # Guard: answer-leakage / restatement rejection
-│   ├── store.py                     # Memory bank, reliability (Eq. 8), quarantine, pruning
-│   ├── verify.py                    # Label-free verification signal
-│   ├── tools.py                     # Restricted Python execution for the Solver
-│   ├── providers.py                 # OpenAI / Gemini clients + cost ledger
-│   ├── llm.py                       # LLM interface + offline stand-in
-│   ├── schema.py                    # Planner / Solver / Curator output schemas
-│   ├── answers.py                   # Answer normalization
-│   ├── datasets.py                  # Stream loading (JSONL + images)
-│   └── trace.py                     # Run recorders (calls, retrieval, CCME)
 │
-├── prompts/                         # Planner / Solver / Curator prompts + vocabularies
+├── lere/                              # LeRe core (Section 3)
+│   ├── pipeline.py                    # Plan → retrieve → solve → curate loop (Algorithm 1)
+│   ├── schema.py                      # Planner / Solver / Curator outputs, memory entry (Eq. 7)
+│   ├── embed.py                       # Frozen encoder f + CCME heads E_q, E_m (Eq. 1)
+│   ├── ccme.py                        # CCME online contrastive training (Eq. 10-11)
+│   ├── retrieve.py                    # Retrieval score (Eq. 3) + MMR top-K
+│   ├── memory.py                      # Memory bank, reliability p̂ (Eq. 8), Maintain
+│   ├── curate.py                      # Credit assignment (Eq. 12) + Consolidate
+│   ├── guard.py                       # Guard: answer leakage / problem restatement
+│   ├── verify.py                      # Label-free verification signal
+│   ├── tools.py                       # Restricted Python execution for the Solver
+│   ├── providers.py                   # OpenAI / Gemini clients + cost ledger
+│   ├── llm.py                         # LLM interface + offline stand-in
+│   ├── answers.py                     # Answer normalization
+│   ├── datasets.py                    # Stream loading (JSONL + images)
+│   └── trace.py                       # Run recorders
+│
+├── prompts/                           # Role prompts (Appendix D.1)
+│   ├── planner.md
+│   ├── solver.md
+│   ├── curator.md
+│   └── taxonomy.md                    # Closed domain / tag vocabularies
+│
 ├── configs/
-│   ├── lere.yaml                    # All hyperparameters (Table 4)
-│   ├── models/                      # Backbone + list prices (Table 3)
-│   └── streams.yaml                 # The 12 evaluation streams
-├── data/subsets/                    # 12 streams, fixed evaluation order (JSONL)
+│   ├── lere.yaml                      # All hyperparameters (Table 4)
+│   ├── models/                        # Backbones + list prices (Table 3)
+│   └── streams.yaml                   # The 12 evaluation streams
+│
+├── data/
+│   ├── subsets/                       # 12 streams in fixed evaluation order (JSONL)
+│   └── README.md                      # Sources and sampling (Appendix B.1)
+│
 ├── scripts/
-│   ├── run_lere.py                  # Run one stream (ablation / K flags)
-│   ├── run_stream.sh                # Entry-point launcher
-│   ├── run_main.sh                  # Table 1: 12 streams × 3 backbones
-│   ├── run_ablations.sh             # Table 2: w/o Planner / CCME / Execution
-│   ├── run_k_sweep.sh               # Table 8: K ∈ {1, 5, 10}
-│   ├── eval/                        # Shared answer scorer (App. B.3) + run scoring
-│   ├── analysis/                    # CCME geometry, verification reliability, K-sweep tests
-│   └── data/fetch_images.py         # Image download + SHA-256 check
-├── tests/                           # Unit tests (no API access)
-├── API_key.txt.example              # API-key template (copy → API_key.txt)
+│   ├── run_lere.py                    # Run one stream (--top-k, --no-planner, --no-ccme, --no-exec)
+│   ├── run_stream.sh                  # Entry-point launcher
+│   ├── run_main.sh                    # Table 1: 12 streams × 3 backbones
+│   ├── run_ablations.sh               # Table 2
+│   ├── run_k_sweep.sh                 # Table 8
+│   ├── eval/
+│   │   ├── scoring.py                 # Shared answer scorer (Appendix B.3)
+│   │   └── score_runs.py              # Accuracy, cost, runtime per run
+│   ├── analysis/
+│   │   ├── ccme_geometry.py           # Table 6, Figure 8
+│   │   ├── verification_reliability.py  # Table 7
+│   │   └── k_sweep_significance.py    # Table 8 tests
+│   └── data/fetch_images.py           # Image download + SHA-256 check
+│
+├── tests/                             # Unit tests (no API access)
+├── API_key.txt.example                # API-key template (copy → API_key.txt)
 └── requirements.txt
 ```
 
@@ -97,15 +113,6 @@ Runs use temperature 0 and at most 2,048 output tokens per call, but hosted mode
 over time, so results may differ slightly. Baselines were run with the official Dynamic
 Cheatsheet (https://github.com/suzgunmirac/dynamic-cheatsheet) and ACE implementations on the
 same streams and scorer.
-
-## Code vs. paper names
-
-| Paper | Code |
-| --- | --- |
-| Planner / Solver / Curator | `c1` / `c2` / `c3` |
-| memory bank, entry | `SkillBook`, `SkillEntry` |
-| CCME, heads E_q / E_m | `ccqs`, `Ep` / `Es` |
-| HELPFUL / HARMFUL / IRRELEVANT / REDUNDANT | `used_positive` / `used_negative` / `unused_irrelevant` / `unused_redundant` |
 
 ## Note
 

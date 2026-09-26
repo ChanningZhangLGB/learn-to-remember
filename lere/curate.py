@@ -1,7 +1,7 @@
 """Credit assignment and the write path: attribution -> evidence, proposal -> guard ->
 consolidate -> write.
 
-Both halves of the loop that v0 left open live here. v0's C3 emitted a positive/negative
+Both halves of the loop that v0 left open live here. v0's Curator emitted a positive/negative
 memory verdict and proposed new entries, and nothing consumed either: no arrow from the
 error analyzer back to the memory bank, and no rule for how helpful/harmful/reliability
 would ever change.
@@ -15,7 +15,7 @@ import numpy as np
 
 from .guard import GuardResult, check_entry
 from .schema import CuratorOutput, ProposedEntry
-from .store import SkillBook
+from .memory import MemoryBank
 from .verify import VerificationSignal
 
 
@@ -36,16 +36,16 @@ class CurationResult:
 
 # ----------------------------------------------------------- credit assignment
 
-def apply_attribution(book: SkillBook, curation: CuratorOutput,
+def apply_attribution(memory: MemoryBank, curation: CuratorOutput,
                       signal: VerificationSignal, cfg: dict,
                       query_id: str, step: int) -> dict[str, tuple[float, float]]:
-    """Turn C3's attribution plus the verification outcome into evidence counters.
+    """Turn Curator's attribution plus the verification outcome into evidence counters.
 
     Eq. (12) of the paper. An earlier version scaled evidence twice: by a per-source `gain`
     (exec 0.5/1.0, judge 0.3/0.6) and, for a used note on a wrong answer, by a
     `root_cause`-keyed blame factor (0.25-1.0). Both were hand-set hypotheses, and together
     they made positive evidence arrive at a fraction of the weight of negative evidence,
-    which showed up directly in the CCQS geometry: the heads learned to push negatives away
+    which showed up directly in the CCME geometry: the heads learned to push negatives away
     and barely moved positives. Both are removed. Evidence is `confidence` alone, symmetric:
 
         used_positive & correct  ->  helpful += confidence
@@ -66,7 +66,7 @@ def apply_attribution(book: SkillBook, curation: CuratorOutput,
             h, x = conf, 0.0
         else:
             h, x = 0.0, conf
-        book.apply_evidence(mid, helpful=h, harmful=x, query_id=query_id, step=step)
+        memory.apply_evidence(mid, helpful=h, harmful=x, query_id=query_id, step=step)
         applied[mid] = (h, x)
 
     for mid in curation.attribution.get("used_negative", []):
@@ -74,7 +74,7 @@ def apply_attribution(book: SkillBook, curation: CuratorOutput,
         # correct answer is noise, not evidence.
         h, x = (0.0, conf) if not correct else (0.0, 0.0)
         if x:
-            book.apply_evidence(mid, helpful=0.0, harmful=x, query_id=query_id, step=step)
+            memory.apply_evidence(mid, helpful=0.0, harmful=x, query_id=query_id, step=step)
         applied[mid] = (h, x)
 
     # unused_* buckets carry no evidence; they feed the retrieval-precision metric only.
@@ -83,7 +83,7 @@ def apply_attribution(book: SkillBook, curation: CuratorOutput,
 
 # ------------------------------------------------------------- consolidation
 
-def nearest_entry(book: SkillBook, proposal: ProposedEntry,
+def nearest_entry(memory: MemoryBank, proposal: ProposedEntry,
                   same_domain_only: bool = True) -> tuple[str | None, float]:
     """Nearest existing entry to a proposal, over skill views.
 
@@ -93,18 +93,18 @@ def nearest_entry(book: SkillBook, proposal: ProposedEntry,
     retrieval now indexes the same rendering, consolidation and retrieval agree on what
     "the same skill" means, which they did not in an earlier version.
     """
-    pool = [e for e in book.entries.values()
+    pool = [e for e in memory.entries.values()
             if not same_domain_only or e.domain == proposal.domain]
     if not pool:
         return None, 0.0
-    pvec = book.encoder.encode_skill([proposal.skill_view()])[0]
-    mat = np.stack([book.vector(e) for e in pool])
+    pvec = memory.encoder.encode_entries([proposal.identity_view()])[0]
+    mat = np.stack([memory.vector(e) for e in pool])
     sims = mat @ pvec
     idx = int(np.argmax(sims))
     return pool[idx].id, float(sims[idx])
 
 
-def consolidate_and_write(book: SkillBook, proposals: list[ProposedEntry],
+def consolidate_and_write(memory: MemoryBank, proposals: list[ProposedEntry],
                           question_text: str, gold_answer: str | None,
                           answer_type: str, cfg: dict, query_id: str,
                           step: int) -> CurationResult:
@@ -124,25 +124,25 @@ def consolidate_and_write(book: SkillBook, proposals: list[ProposedEntry],
         )
         if not verdict.accepted:
             result.rejected.append((proposal.title, verdict.reason_str))
-            book.log(step, query_id, "reject", "-",
+            memory.log(step, query_id, "reject", "-",
                      f"{proposal.title} :: {verdict.reason_str}")
             continue
 
-        target_id, sim = nearest_entry(book, proposal)
+        target_id, sim = nearest_entry(memory, proposal)
         if target_id is not None and sim >= merge_t:
-            book.merge(target_id, proposal, query_id, step, max_bullets=max_bullets)
+            memory.merge(target_id, proposal, query_id, step, max_bullets=max_bullets)
             result.merged.append(target_id)
         else:
             related = [target_id] if (target_id and sim >= link_t) else []
-            entry = book.create(proposal, query_id, step, related_ids=related)
+            entry = memory.create(proposal, query_id, step, related_ids=related)
             result.created.append(entry.id)
 
     return result
 
 
-def maintenance_pass(book: SkillBook, cfg: dict, query_id: str,
+def maintenance_pass(memory: MemoryBank, cfg: dict, query_id: str,
                      step: int) -> tuple[list[str], list[str]]:
     """Quarantine proven-harmful entries, then enforce capacity."""
-    quarantined = book.quarantine_pass(cfg.get("pruning", {}), step, query_id)
-    pruned = book.prune_to_capacity(cfg.get("pruning", {}), step, query_id)
+    quarantined = memory.quarantine_pass(cfg.get("pruning", {}), step, query_id)
+    pruned = memory.prune_to_capacity(cfg.get("pruning", {}), step, query_id)
     return quarantined, pruned

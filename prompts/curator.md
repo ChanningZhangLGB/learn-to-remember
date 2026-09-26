@@ -1,4 +1,4 @@
-# C3 — Verifier and skill curator
+# Curator — Verifier and skill curator
 
 ## Persona
 

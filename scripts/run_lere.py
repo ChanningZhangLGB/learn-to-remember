@@ -20,9 +20,9 @@ Output, in --out (default runs/<model>/<stream>[_<variant>]/):
                     gold correctness, latency and the LLM calls it made
   llm_calls.jsonl   every Planner / Solver / Curator call: prompt, raw text, tokens, cost
   retrieval.jsonl   every candidate entry: raw similarity, domain weight, score, MMR pick
-  ccqs.jsonl        per step: CCME pair yield, buffer, updates, loss, head statistics
+  ccme.jsonl        per step: CCME pair yield, buffer, updates, loss, head statistics
   heads/            E_q / E_m weights at the start, after every update, and at the end
-  book/, book_final.json   the memory bank before and after each item
+  memory/, memory_final.json   the memory bank before and after each item
   report.json       accuracy, cost, latency, CCME statistics and consistency checks
 
 Nothing here changes the method: the recorders hang off `Pipeline.on_step` and
@@ -49,7 +49,7 @@ from lere.embed import build_encoder  # noqa: E402
 from lere.llm import EchoLLM  # noqa: E402
 from lere.pipeline import Pipeline, RunReport  # noqa: E402
 from lere.providers import ProviderLLM  # noqa: E402
-from lere.store import SkillBook  # noqa: E402
+from lere.memory import MemoryBank  # noqa: E402
 from lere.trace import (CallRecorder, JsonlWriter, TracedLLM, TracingRetriever,  # noqa: E402
                         head_stats, head_weights)
 
@@ -89,7 +89,7 @@ def resolve_items(stream: str) -> Path:
 def disable_planner() -> None:
     """The "w/o Planner" ablation: k_i = x_i instead of phi(pi_i).
 
-    C1 is never called. The raw question becomes the semantic context (and hence the
+    Planner is never called. The raw question becomes the semantic context (and hence the
     retrieval key), with no image description, no domain (normalized to `other`, so every
     entry gets the same soft domain weight), no tags and no code hint for the Solver.
     """
@@ -114,7 +114,7 @@ class _DryRunLLM:
     _REF_RE = re.compile(r"^\[(m_\d+)\]", re.MULTILINE)
 
     # Varied on purpose. A stub that proposes one topic makes every proposal merge into
-    # one entry, every CCQS pair share a single positive, and every update get skipped as
+    # one entry, every CCME pair share a single positive, and every update get skipped as
     # degenerate -- which is correct behaviour but leaves the trainer
     # path unexercised. These four give the buffer distinct positives and hard negatives.
     _TOPICS = [
@@ -133,7 +133,7 @@ class _DryRunLLM:
         return self._TOPICS[(self._n - 1) % len(self._TOPICS)]
 
     def complete_json(self, prompt: str, *, component: str, image=None) -> dict:
-        if component == "c1":
+        if component == "planner":
             self._turns = 0
             self._n += 1
             domain, tags, blurb = self._topic
@@ -141,7 +141,7 @@ class _DryRunLLM:
                     "domain": domain, "tags": tags,
                     "retrieval_query": "%s | domain: %s" % (blurb, domain),
                     "tool_expected": True, "reason": "dry run"}
-        if component == "c2":
+        if component == "solver":
             self._turns += 1
             if self._turns == 1:
                 return {"action": "tool", "tool": "python",
@@ -156,7 +156,7 @@ class _DryRunLLM:
                         "unused": [{"id": r, "why_not": "different subproblem",
                                     "reason_code": "irrelevant"} for r in refs[1:]]},
                     "answer": str(70 + self._n), "confidence": 0.6}
-        if component == "c3":
+        if component == "curator":
             refs = self._REF_RE.findall(prompt)
             return {"verification": {"correct": True, "reasoning_sound": True,
                                      "verdict_source": "signal", "reason": "dry run",
@@ -209,7 +209,7 @@ def main() -> int:
         cfg["retrieval"]["top_k"] = args.top_k
         variant.append("k%d" % args.top_k)
     if args.no_ccme:
-        cfg["ccqs"]["enabled"] = False
+        cfg["ccme"]["enabled"] = False
         variant.append("no_ccme")
     if args.no_exec:
         cfg["tools"]["enabled"] = False
@@ -231,7 +231,7 @@ def main() -> int:
     out = Path(args.out) if args.out else REPO_ROOT / "runs" / args.model / (
         "_".join([name] + variant) + ("_dry" if args.dry_run else ""))
     out.mkdir(parents=True, exist_ok=True)
-    (out / "book").mkdir(exist_ok=True)
+    (out / "memory").mkdir(exist_ok=True)
     (out / "heads").mkdir(exist_ok=True)
 
     (out / "config.snapshot.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False),
@@ -243,7 +243,7 @@ def main() -> int:
 
     w_calls = JsonlWriter(out / "llm_calls.jsonl")
     w_retr = JsonlWriter(out / "retrieval.jsonl")
-    w_ccqs = JsonlWriter(out / "ccqs.jsonl")
+    w_ccme = JsonlWriter(out / "ccme.jsonl")
     w_steps = JsonlWriter(out / "steps.jsonl")
 
     recorder = CallRecorder(w_calls)
@@ -254,33 +254,33 @@ def main() -> int:
         print("client:", llm)
 
     encoder = build_encoder(cfg.get("embedding", {}))
-    book = SkillBook(encoder=encoder)
-    pipe = Pipeline(book, llm, cfg)
+    memory = MemoryBank(encoder=encoder)
+    pipe = Pipeline(memory, llm, cfg)
 
     class _SnapshottingRetriever(TracingRetriever):
-        """Saves the book as it stood when the query arrived.
+        """Saves the memory as it stood when the query arrived.
 
-        `on_step` fires after the write phase, so `book/step_NN.json` is the book AFTER
-        item NN. Retrieval is the first thing that touches the book on an item, so this is
+        `on_step` fires after the write phase, so `memory/step_NN.json` is the memory AFTER
+        item NN. Retrieval is the first thing that touches the memory on an item, so this is
         the only place to capture the state the query was actually scored against.
         """
 
         def retrieve(self, plan, step):
-            book.save(out / "book" / ("step_%02d_before.json" % step))
+            memory.save(out / "memory" / ("step_%02d_before.json" % step))
             return super().retrieve(plan, step)
 
-    pipe.retriever = _SnapshottingRetriever(book, cfg.get("retrieval", {}), w_retr)
+    pipe.retriever = _SnapshottingRetriever(memory, cfg.get("retrieval", {}), w_retr)
 
     np.savez(out / "heads" / "start.npz", **head_weights(encoder))
     # `DualEncoder.reset_heads()` bumps the version itself, so `version > 0` is NOT evidence
-    # that CCQS moved anything -- the post-reset baseline is already 1. The honest
+    # that CCME moved anything -- the post-reset baseline is already 1. The honest
     # trigger is `stats.updates` increasing.
     state = {"updates": 0, "written": 0}
 
     def on_step(p, report, loss) -> None:
         step = p.record.step
         enc_stats = head_stats(encoder)
-        cstats = pipe.ccqs.stats
+        cstats = pipe.ccme.stats
 
         # Full weights only when the heads actually moved: 384x384 x2 per step does not
         # survive to a 12k-item run, and an unchanged matrix carries no information.
@@ -289,27 +289,27 @@ def main() -> int:
                      **head_weights(encoder))
             state["updates"] = cstats.updates
 
-        book.save(out / "book" / ("step_%02d.json" % step))
+        memory.save(out / "memory" / ("step_%02d.json" % step))
 
         # New write-log rows since the previous step: create / merge / reject / quarantine
         # / prune, with the detail string each carries.
-        writes = [vars(r) for r in book.write_log[state["written"]:]]
-        state["written"] = len(book.write_log)
+        writes = [vars(r) for r in memory.write_log[state["written"]:]]
+        state["written"] = len(memory.write_log)
 
-        # Every proposal scored against every entry now in the book. This is the raw
+        # Every proposal scored against every entry now in the memory. This is the raw
         # material for calibrating the merge / link thresholds (real should-merge / should-separate
         # pairs), and it is measured AFTER the write, so a proposal that merged appears
         # here scored against the entry it merged into.
         proposal_sims = []
         for prop in p.curation.proposed_entries:
-            pv = encoder.encode_skill([prop.skill_view()])[0]
+            pv = encoder.encode_entries([prop.identity_view()])[0]
             scored = sorted(
-                ({"entry_id": e.id, "entry_skill_view": e.skill_view(),
-                  "cosine": round(float(pv @ book.vector(e)), 6)}
-                 for e in book.active()),
+                ({"entry_id": e.id, "entry_identity_view": e.identity_view(),
+                  "cosine": round(float(pv @ memory.vector(e)), 6)}
+                 for e in memory.active()),
                 key=lambda r: r["cosine"], reverse=True)[:5]
             proposal_sims.append({"proposal_title": prop.title,
-                                  "proposal_skill_view": prop.skill_view(),
+                                  "proposal_identity_view": prop.identity_view(),
                                   "measured_after_write": True,
                                   "nearest": scored})
 
@@ -318,23 +318,23 @@ def main() -> int:
         # negatives, so the softmax has nothing to contrast and the step is correctly
         # skipped. Distinguishing it from "not due yet" is the difference between a
         # trainer bug and a data-yield fact.
-        was_due = pipe.ccqs.due(step)
-        w_ccqs.write({
-            "step": step, "ccqs_loss": loss,
-            "pair_buffered_this_step": bool(p.record.ccqs_pair),
+        was_due = pipe.ccme.due(step)
+        w_ccme.write({
+            "step": step, "ccme_loss": loss,
+            "pair_buffered_this_step": bool(p.record.ccme_pair),
             "update_was_due": was_due,
             "update_skipped_degenerate": bool(was_due and loss is None),
             "distinct_positives_in_buffer": len(
-                {v for pair in pipe.ccqs.buffer for v in pair.positives}),
-            "pairs_from_wrong_answer": pipe.ccqs.stats.pairs_from_wrong_answer,
-            "trainable_pairs": pipe.ccqs.trainable_pairs(),
+                {v for pair in pipe.ccme.buffer for v in pair.positives}),
+            "pairs_from_wrong_answer": pipe.ccme.stats.pairs_from_wrong_answer,
+            "trainable_pairs": pipe.ccme.trainable_pairs(),
             "pairs_with_hard_negatives": sum(
-                1 for pair in pipe.ccqs.buffer if pair.hard_negatives),
-            "stats": pipe.ccqs.stats.summary(),
-            "losses": list(pipe.ccqs.stats.losses),
-            "buffer_len": len(pipe.ccqs.buffer),
-            "enabled": pipe.ccqs.enabled, "k_upd": pipe.ccqs.k_upd,
-            "min_pairs": pipe.ccqs.min_pairs, "heads": enc_stats,
+                1 for pair in pipe.ccme.buffer if pair.hard_negatives),
+            "stats": pipe.ccme.stats.summary(),
+            "losses": list(pipe.ccme.stats.losses),
+            "buffer_len": len(pipe.ccme.buffer),
+            "enabled": pipe.ccme.enabled, "k_upd": pipe.ccme.k_upd,
+            "min_pairs": pipe.ccme.min_pairs, "heads": enc_stats,
         })
 
         retr = getattr(pipe.retriever, "last", {}) or {}
@@ -367,13 +367,13 @@ def main() -> int:
             # to disagree. The disagreement rate is the number to read.
             "signal": {"source": sig.source, "correct": sig.correct,
                        "confidence": sig.confidence, "detail": sig.detail},
-            # C3 is the verdict authority on every source but `gt`; these say whether it
+            # Curator is the verdict authority on every source but `gt`; these say whether it
             # exercised that and whether the exercise was right.
             "verdict": {
                 "curator_correct": p.record.curator_correct,
                 "overrode_signal": p.record.verdict_overridden,
                 "root_cause": p.record.root_cause,
-                "ccqs_pair_from_wrong_answer": p.record.ccqs_pair_from_wrong_answer,
+                "ccme_pair_from_wrong_answer": p.record.ccme_pair_from_wrong_answer,
             },
             "gold_correct": p.record.correct,
             "signal_correct": sig.correct,
@@ -388,7 +388,7 @@ def main() -> int:
                 "write_log": writes,
                 "proposal_similarities": proposal_sims,
             },
-            "book": book.snapshot_stats(),
+            "memory": memory.snapshot_stats(),
             "llm_calls": recorder.slice_for_step(step),
             "llm_calls_this_step": p.record.llm_calls,
             "latency_s": p.record.latency_s,
@@ -397,20 +397,20 @@ def main() -> int:
         graded = [s for s in report.steps if s.gold is not None]
         hits = sum(1 for s in graded if s.correct)
         print("  [%2d/%2d] %-16s ans=%-6s gold=%-4s %-5s | acc %2d/%-2d = %5.1f%% | "
-              "refs=%d sig=%-6s book=%2d pairs=%d loss=%s"
+              "refs=%d sig=%-6s memory=%2d pairs=%d loss=%s"
               % (done, len(items), p.item.id, (p.solver.answer or "-")[:6], p.item.gold,
                  "OK" if p.record.correct else "WRONG",
                  hits, len(graded), 100.0 * hits / max(1, len(graded)),
                  len(p.refs),
                  "%s%s" % (sig.correct, "*" if p.record.verdict_overridden else ""),
-                 len(book), pipe.ccqs.stats.pairs_seen,
+                 len(memory), pipe.ccme.stats.pairs_seen,
                  "-" if loss is None else round(loss, 4)), flush=True)
 
     pipe.on_step = on_step
 
     print("running %d items from %s" % (len(items), args.items), flush=True)
     print("  config=%s  sim_threshold=%s  k_upd=%s  source=%s"
-          % (args.config, cfg["retrieval"]["sim_threshold"], cfg["ccqs"]["k_upd"],
+          % (args.config, cfg["retrieval"]["sim_threshold"], cfg["ccme"]["k_upd"],
              cfg["verification"]["source"]), flush=True)
     report = RunReport()
     t0 = time.perf_counter()
@@ -418,7 +418,7 @@ def main() -> int:
     wall = time.perf_counter() - t0
 
     np.savez(out / "heads" / "end.npz", **head_weights(encoder))
-    book.save(out / "book_final.json")
+    memory.save(out / "memory_final.json")
 
     traced = {json.loads(l)["step"] for l in
               (out / "steps.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()}
@@ -450,14 +450,14 @@ def main() -> int:
             "signal_unavailable": sum(
                 1 for l in (out / "steps.jsonl").read_text(encoding="utf-8").splitlines()
                 if l.strip() and json.loads(l)["signal_correct"] is None),
-            "ccqs_updates": pipe.ccqs.stats.updates,
-            "ccqs_pairs_seen": pipe.ccqs.stats.pairs_seen,
-            "ccqs_updates_skipped_degenerate": sum(
-                1 for l in (out / "ccqs.jsonl").read_text(encoding="utf-8").splitlines()
+            "ccme_updates": pipe.ccme.stats.updates,
+            "ccme_pairs_seen": pipe.ccme.stats.pairs_seen,
+            "ccme_updates_skipped_degenerate": sum(
+                1 for l in (out / "ccme.jsonl").read_text(encoding="utf-8").splitlines()
                 if l.strip() and json.loads(l)["update_skipped_degenerate"]),
-            "heads_moved": head_stats(encoder)["ep"]["delta_from_identity"] > 0.0,
+            "heads_moved": head_stats(encoder)["eq"]["delta_from_identity"] > 0.0,
             "curator_overrode_signal": report.violations.get("curator_overrode_signal", 0),
-            "ccqs_pairs_from_wrong_answer": pipe.ccqs.stats.pairs_from_wrong_answer,
+            "ccme_pairs_from_wrong_answer": pipe.ccme.stats.pairs_from_wrong_answer,
             "root_cause_distribution": {
                 rc: sum(1 for s in report.steps if s.root_cause == rc)
                 for rc in sorted({s.root_cause for s in report.steps})},
@@ -475,7 +475,7 @@ def main() -> int:
     (out / "report.json").write_text(json.dumps(payload, indent=2, default=str),
                                      encoding="utf-8")
 
-    for w in (w_calls, w_retr, w_ccqs, w_steps):
+    for w in (w_calls, w_retr, w_ccme, w_steps):
         w.close()
 
     print("\n--- summary ---")

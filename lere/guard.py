@@ -1,8 +1,8 @@
 """Leakage guard -- the countermeasure that makes streaming scope defensible.
 
-In per-run streaming with ground truth, C3 sees the gold answer while writing entries that
+In per-run streaming with ground truth, Curator sees the gold answer while writing entries that
 later questions will retrieve. Nothing in the v0 design stopped it from writing the answer
-into the book. For five of the six target datasets the answer is a single letter or a small
+into the memory. For five of the six target datasets the answer is a single letter or a small
 integer, so this is not a hypothetical failure mode.
 
 Every rejection is returned with a reason so the rejection rate is reportable -- it is
@@ -23,7 +23,7 @@ _WORD_RE = re.compile(r"[a-z0-9]+")
 # A prose answer claim, not any assignment that happens to use one of these nouns.
 #
 # The earlier form allowed a bare noun with `=`, so it matched `result = 0` inside a
-# Python example and rejected the entry as answer leakage. C3's prompt actively asks for
+# Python example and rejected the entry as answer leakage. Curator's prompt actively asks for
 # `tool.*` entries whose example is code, so the guard was rejecting a class of entry the
 # design wants. A qualifier ("the", "final", "correct") admits `=`; a bare noun needs a
 # prose connector.

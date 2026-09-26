@@ -13,7 +13,7 @@ What it captures, and why each piece is here rather than derived later:
   below `sim_threshold` and returns a list; on a cold-start run the informative fact is
   usually "the best candidate scored 0.43 against a 0.60 floor", and a returned empty list
   cannot tell you that. It is also the raw material for calibrating thresholds.
-* **The encoder version on every vector.** A CCQS update invalidates every projected
+* **The encoder version on every vector.** A CCME update invalidates every projected
   vector (`DualEncoder.bump_version`). An unversioned embedding dump stops being
   interpretable the moment the heads move.
 * **Head geometry per step, full weights per update.** `||W - I||` is the number that
@@ -76,9 +76,9 @@ class JsonlWriter:
 # ------------------------------------------------------------------- encoder geometry
 
 def head_weights(encoder) -> dict:
-    """Ep and Es as plain arrays, whichever backend is live."""
+    """E_q and E_m as plain arrays, whichever backend is live."""
     out = {}
-    for name, head in (("ep", encoder.ep), ("es", encoder.es)):
+    for name, head in (("eq", encoder.eq), ("em", encoder.em)):
         if head.module is not None:
             out[name] = head.module.weight.detach().numpy().copy()
         else:
@@ -88,7 +88,7 @@ def head_weights(encoder) -> dict:
 
 def head_stats(encoder) -> dict:
     """Cheap per-step geometry. `delta_from_identity` is the one that matters: the heads
-    start at identity by construction, so any nonzero value is CCQS having moved them."""
+    start at identity by construction, so any nonzero value is CCME having moved them."""
     stats = {"version": int(encoder.version), "trainable": bool(encoder.trainable)}
     for name, w in head_weights(encoder).items():
         eye = np.eye(w.shape[0], w.shape[1], dtype=w.dtype)
@@ -106,11 +106,11 @@ def head_stats(encoder) -> dict:
 class CallRecorder:
     """Collects every provider call. Wire it in as `ProviderLLM(on_call=recorder)`."""
 
-    def __init__(self, writer: JsonlWriter, advance_on: str = "c1") -> None:
+    def __init__(self, writer: JsonlWriter, advance_on: str = "planner") -> None:
         self.writer = writer
         self.calls: list = []
         self.step = -1
-        # C1 runs exactly once per item and always first (`Pipeline._process`), so it is
+        # Planner runs exactly once per item and always first (`Pipeline._process`), so it is
         # the item boundary. The driver cannot supply the step itself: `Pipeline.run`
         # owns the loop, and calls happen inside it.
         self.advance_on = advance_on
@@ -187,16 +187,16 @@ class TracingRetriever(Retriever):
     record rather than silently producing a plausible, wrong table.
     """
 
-    def __init__(self, book, cfg, writer: JsonlWriter) -> None:
-        super().__init__(book, cfg)
+    def __init__(self, memory, cfg, writer: JsonlWriter) -> None:
+        super().__init__(memory, cfg)
         self.writer = writer
         self.last: dict = {}
 
     def retrieve(self, plan, step: int) -> list:
         cfg = self.cfg
-        candidates = self.book.active()
+        candidates = self.memory.active()
         qview = plan.query_view()
-        qvec = self.book.encoder.encode_query(qview)
+        qvec = self.memory.encoder.encode_query(qview)
 
         threshold = parse_threshold(cfg.get("sim_threshold", 0.6))
         mode = cfg.get("domain_filter", "soft")
@@ -206,14 +206,14 @@ class TracingRetriever(Retriever):
 
         rows = []
         for entry in candidates:
-            evec = self.book.vector(entry)
+            evec = self.memory.vector(entry)
             raw = float(evec @ qvec)
             aff = domain_affinity(plan.domain, entry.domain, partial)
             adjusted = raw * (1.0 - penalty * (1.0 - aff)) if mode == "soft" else raw
             rows.append({
                 "entry_id": entry.id,
                 "title": entry.title,
-                "skill_view": entry.skill_view(),
+                "identity_view": entry.identity_view(),
                 "entry_domain": entry.domain,
                 "raw_sim": round(raw, 6),
                 "passed_floor": threshold is None or raw >= threshold,
@@ -235,7 +235,7 @@ class TracingRetriever(Retriever):
 
         record = {
             "step": step,
-            "encoder_version": int(self.book.encoder.version),
+            "encoder_version": int(self.memory.encoder.version),
             "query_view": qview,
             "planner_domain": plan.domain,
             "ep_query_vector": qvec,

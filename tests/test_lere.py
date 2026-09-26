@@ -16,7 +16,7 @@ import numpy as np  # noqa: E402
 import pytest  # noqa: E402
 
 from lere.answers import canonical_answer, is_correct, normalize_integer, normalize_mcq  # noqa: E402
-from lere.ccqs import CCQSTrainer  # noqa: E402
+from lere.ccme import CCMETrainer  # noqa: E402
 from lere.curate import apply_attribution, consolidate_and_write, nearest_entry  # noqa: E402
 from lere.embed import HashingEncoder, DualEncoder  # noqa: E402
 from lere.guard import (check_entry, distinctive_numbers,  # noqa: E402
@@ -35,10 +35,10 @@ from lere.retrieve import Retriever  # noqa: E402
 from lere.trace import (CallRecorder, JsonlWriter, TracedLLM,  # noqa: E402
                         TracingRetriever, head_stats, head_weights)
 from lere.schema import (DOMAINS, ROOT_CAUSES, TAG_PREFIXES, CuratorOutput,  # noqa: E402
-                         EntryMeta, PlannerOutput, ProposedEntry, SkillEntry,
+                         EntryMeta, PlannerOutput, ProposedEntry, MemoryEntry,
                          VocabViolations, domain_affinity, normalize_domain,
                          normalize_root_cause, normalize_tags, vocabulary_block)
-from lere.store import SkillBook  # noqa: E402
+from lere.memory import MemoryBank  # noqa: E402
 from lere.tools import (ToolConfig, ToolResult, ToolTranscript,  # noqa: E402
                         probe_modules, run_python)
 from lere.verify import (AUTHORITATIVE_SOURCES, VerificationSignal,  # noqa: E402
@@ -70,8 +70,8 @@ CFG_EXEC = {"gains": {"exec": {"positive": 0.5, "negative": 1.0}},
             "used_but_wrong_factor": 0.5}
 
 @pytest.fixture
-def book() -> SkillBook:
-    return SkillBook(encoder=DualEncoder(HashingEncoder(dim=256)))
+def memory() -> MemoryBank:
+    return MemoryBank(encoder=DualEncoder(HashingEncoder(dim=256)))
 
 
 def make_proposal(title: str, bullets: list[str], domain: str = "math.number_theory",
@@ -144,83 +144,83 @@ class TestReliability:
         m = EntryMeta(helpful=0.0, harmful=3.0)
         assert m.recompute_reliability() == pytest.approx(1 / 5)
 
-    def test_store_ignores_authored_reliability(self, book, tmp_path):
+    def test_store_ignores_authored_reliability(self, memory, tmp_path):
         # A model emitting reliability: 0.99 on an entry with 4.0 harm must not be believed.
-        book.entries["m_001"] = SkillEntry(
+        memory.entries["m_001"] = MemoryEntry(
             id="m_001", title="a title here", bullets=["aa bb", "cc dd"], example="",
             domain="physics", tags=["strategy.x"],
             meta=EntryMeta(helpful=0.0, harmful=4.0, reliability=0.99))
-        path = tmp_path / "book.json"
-        book.save(path)
-        reloaded = SkillBook.load(path, book.encoder)
+        path = tmp_path / "memory.json"
+        memory.save(path)
+        reloaded = MemoryBank.load(path, memory.encoder)
         assert reloaded.entries["m_001"].meta.reliability == pytest.approx(1 / 6)
 
 
 # ------------------------------------------------------------------ retrieval
 
 class TestRetrieval:
-    def test_cold_start_returns_nothing(self, book):
+    def test_cold_start_returns_nothing(self, memory):
         plan = PlannerOutput("counting lattice paths", "math.combinatorics",
                              ["strategy.casework"])
-        assert Retriever(book, CFG["retrieval"]).retrieve(plan, 0) == []
+        assert Retriever(memory, CFG["retrieval"]).retrieve(plan, 0) == []
 
-    def test_relevance_floor_blocks_irrelevant_match(self, book):
-        book.create(make_proposal("Stereochemistry priority rules",
+    def test_relevance_floor_blocks_irrelevant_match(self, memory):
+        memory.create(make_proposal("Stereochemistry priority rules",
                                   ["Assign CIP priorities", "Compare substituents"],
                                   domain="chemistry", tags=["knowledge.stereochemistry"]),
                     "Q_001", 0)
         plan = PlannerOutput("counting lattice paths under a divisibility constraint",
                              "math.combinatorics", ["strategy.casework"])
         # Nothing relevant exists, so returning nothing beats returning the least-bad entry.
-        assert Retriever(book, CFG["retrieval"]).retrieve(plan, 1) == []
+        assert Retriever(memory, CFG["retrieval"]).retrieve(plan, 1) == []
 
-    def test_hard_domain_filter_drops_mismatch(self, book):
-        book.create(make_proposal("Modular arithmetic for last digits",
+    def test_hard_domain_filter_drops_mismatch(self, memory):
+        memory.create(make_proposal("Modular arithmetic for last digits",
                                   ["Reduce mod 10 early", "Use Euler totient"]),
                     "Q_001", 0)
         plan = PlannerOutput("modular arithmetic for last digits", "chemistry",
                              ["strategy.modular_arithmetic"])
         cfg = {**CFG["retrieval"], "domain_filter": "hard", "sim_threshold": 0.0}
-        assert Retriever(book, cfg).retrieve(plan, 1) == []
+        assert Retriever(memory, cfg).retrieve(plan, 1) == []
 
-    def test_quarantined_entries_are_not_retrieved(self, book):
-        e = book.create(make_proposal("Modular arithmetic for last digits",
+    def test_quarantined_entries_are_not_retrieved(self, memory):
+        e = memory.create(make_proposal("Modular arithmetic for last digits",
                                       ["Reduce mod 10 early", "Use Euler totient"]),
                         "Q_001", 0)
         plan = PlannerOutput("modular arithmetic for last digits", "math.number_theory",
                              ["strategy.modular_arithmetic"])
         cfg = {**CFG["retrieval"], "sim_threshold": 0.0}
-        assert len(Retriever(book, cfg).retrieve(plan, 1)) == 1
+        assert len(Retriever(memory, cfg).retrieve(plan, 1)) == 1
         e.status = "quarantined"
-        assert Retriever(book, cfg).retrieve(plan, 2) == []
+        assert Retriever(memory, cfg).retrieve(plan, 2) == []
 
-    def test_retrieve_does_not_write_during_the_read_phase(self, book):
+    def test_retrieve_does_not_write_during_the_read_phase(self, memory):
         """SPEC section 9 promises the read phase sees a frozen snapshot.
 
         `retrieved_count` and `last_used_step` are writes. Incrementing them inside
-        `retrieve()` is a read-modify-write against the shared book, which is a race the
+        `retrieve()` is a read-modify-write against the shared memory, which is a race the
         moment items run in parallel -- and MMLU-Pro (~12k items) requires that. The
         pipeline records the bookkeeping at the batch boundary instead.
         """
-        e = book.create(make_proposal("Modular arithmetic for last digits",
+        e = memory.create(make_proposal("Modular arithmetic for last digits",
                                       ["Reduce mod 10 early", "Use Euler totient"]),
                         "Q_001", 0)
         plan = PlannerOutput("modular arithmetic for last digits", "math.number_theory",
                              ["strategy.modular_arithmetic"])
-        refs = Retriever(book, {**CFG["retrieval"], "sim_threshold": 0.0}).retrieve(plan, 7)
+        refs = Retriever(memory, {**CFG["retrieval"], "sim_threshold": 0.0}).retrieve(plan, 7)
         assert len(refs) == 1
         assert e.meta.retrieved_count == 0 and e.meta.last_used_step is None
 
-    def test_pipeline_records_bookkeeping_at_the_batch_boundary(self, book):
-        book.create(make_proposal("Modular arithmetic for last digits",
+    def test_pipeline_records_bookkeeping_at_the_batch_boundary(self, memory):
+        memory.create(make_proposal("Modular arithmetic for last digits",
                                   ["Reduce mod 10 early", "Use Euler totient"]),
                     "Q_001", 0)
         cfg = {**CFG, "run": {**CFG["run"], "reset_per_run": False},
                "retrieval": {**CFG["retrieval"], "sim_threshold": 0.0}}
         items = [Item(id="Q_002", question="A question?", answer_type="mcq_letter",
                       gold="A", n_options=4)]
-        Pipeline(book, EchoLLM(answer="A"), cfg).run(items)
-        entry = book.entries["m_001"]
+        Pipeline(memory, EchoLLM(answer="A"), cfg).run(items)
+        entry = memory.entries["m_001"]
         assert entry.meta.retrieved_count == 1 and entry.meta.last_used_step == 0
 
 
@@ -282,7 +282,7 @@ class TestGuard:
 
 
 # ---------------------------------------------------------- credit assignment
-# v0 gap: C3's positive/negative verdict was consumed by nothing.
+# v0 gap: Curator's positive/negative verdict was consumed by nothing.
 
 class TestCreditAssignment:
     def _curation(self, positive=(), negative=()) -> CuratorOutput:
@@ -293,39 +293,39 @@ class TestCreditAssignment:
                          "unused_irrelevant": [], "unused_redundant": []},
             lesson="", sufficient=1, proposed_entries=[])
 
-    def test_correct_answer_credits_used_entry(self, book):
-        e = book.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
+    def test_correct_answer_credits_used_entry(self, memory):
+        e = memory.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
         sig = VerificationSignal(True, 1.0, "gt")
-        apply_attribution(book, self._curation(positive=[e.id]), sig,
+        apply_attribution(memory, self._curation(positive=[e.id]), sig,
                           CFG["verification"], "Q_002", 1)
         assert e.meta.helpful == pytest.approx(1.0)
         assert e.meta.reliability == pytest.approx(2 / 3)
 
-    def test_misleading_entry_takes_full_blame_when_wrong(self, book):
-        e = book.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
+    def test_misleading_entry_takes_full_blame_when_wrong(self, memory):
+        e = memory.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
         sig = VerificationSignal(False, 1.0, "gt")
-        apply_attribution(book, self._curation(negative=[e.id]), sig,
+        apply_attribution(memory, self._curation(negative=[e.id]), sig,
                           CFG["verification"], "Q_002", 1)
         assert e.meta.harmful == pytest.approx(1.0)
 
-    def test_used_but_wrong_takes_full_blame(self, book):
-        e = book.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
+    def test_used_but_wrong_takes_full_blame(self, memory):
+        e = memory.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
         sig = VerificationSignal(False, 1.0, "gt")
-        apply_attribution(book, self._curation(positive=[e.id]), sig,
+        apply_attribution(memory, self._curation(positive=[e.id]), sig,
                           CFG["verification"], "Q_002", 1)
         assert e.meta.harmful == pytest.approx(1.0)   # v2: confidence alone, no blame factor
 
-    def test_label_free_positive_evidence_is_not_discounted(self, book):
-        e = book.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
+    def test_label_free_positive_evidence_is_not_discounted(self, memory):
+        e = memory.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
         sig = VerificationSignal(True, 1.0, "consistency")
-        apply_attribution(book, self._curation(positive=[e.id]), sig,
+        apply_attribution(memory, self._curation(positive=[e.id]), sig,
                           CFG["verification"], "Q_002", 1)
         assert e.meta.helpful == pytest.approx(1.0)   # v2: symmetric, gains all 1.0
 
-    def test_label_free_negative_evidence_is_not_discounted(self, book):
-        e = book.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
+    def test_label_free_negative_evidence_is_not_discounted(self, memory):
+        e = memory.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
         sig = VerificationSignal(False, 1.0, "consistency")
-        apply_attribution(book, self._curation(negative=[e.id]), sig,
+        apply_attribution(memory, self._curation(negative=[e.id]), sig,
                           CFG["verification"], "Q_002", 1)
         assert e.meta.harmful == pytest.approx(1.0)
 
@@ -352,125 +352,125 @@ class TestCreditAssignment:
 # v0 gap: cluster_size implied merging, but no merge policy existed.
 
 class TestConsolidation:
-    def test_near_duplicate_merges_instead_of_creating(self, book):
+    def test_near_duplicate_merges_instead_of_creating(self, memory):
         p1 = make_proposal("Modular arithmetic for final digits",
                            ["Reduce mod 10 before expanding",
                             "Use Euler totient for large exponents"])
-        book.create(p1, "Q_001", 0)
+        memory.create(p1, "Q_001", 0)
         p2 = make_proposal("Modular arithmetic for final digits",
                            ["Reduce mod 10 before expanding",
                             "Check whether the modulus is prime first"])
-        res = consolidate_and_write(book, [p2], "some unrelated question text", None,
+        res = consolidate_and_write(memory, [p2], "some unrelated question text", None,
                                     "integer", CFG, "Q_002", 1)
         assert res.merged and not res.created
-        entry = book.entries[res.merged[0]]
+        entry = memory.entries[res.merged[0]]
         assert entry.meta.cluster_size == 2
         assert "Q_002" in entry.meta.source_queries
         assert len(entry.bullets) == 3          # union, not append-everything
 
-    def test_distinct_proposal_creates_new_entry(self, book):
-        book.create(make_proposal("Modular arithmetic for final digits",
+    def test_distinct_proposal_creates_new_entry(self, memory):
+        memory.create(make_proposal("Modular arithmetic for final digits",
                                   ["Reduce mod 10 early", "Use Euler totient"]),
                     "Q_001", 0)
         p2 = make_proposal("Power of a point in tangent configurations",
                            ["Identify tangent and secant", "Apply the power relation"],
                            domain="math.geometry", tags=["strategy.power_of_a_point"])
-        res = consolidate_and_write(book, [p2], "unrelated question", None, "integer",
+        res = consolidate_and_write(memory, [p2], "unrelated question", None, "integer",
                                     CFG, "Q_002", 1)
         assert res.created and not res.merged
 
-    def test_merge_keeps_identity_stable(self, book):
-        e = book.create(make_proposal("Modular arithmetic for final digits",
+    def test_merge_keeps_identity_stable(self, memory):
+        e = memory.create(make_proposal("Modular arithmetic for final digits",
                                       ["Reduce mod 10 early", "Use Euler totient"]),
                         "Q_001", 0)
         original_id, original_title = e.id, e.title
-        book.merge(e.id, make_proposal("Modular arithmetic for final digits",
+        memory.merge(e.id, make_proposal("Modular arithmetic for final digits",
                                        ["Reduce mod 10 early", "New bullet added"]),
                    "Q_002", 1)
         assert e.id == original_id and e.title == original_title
 
-    def test_bullets_capped_on_repeated_merges(self, book):
-        e = book.create(make_proposal("Modular arithmetic for final digits",
+    def test_bullets_capped_on_repeated_merges(self, memory):
+        e = memory.create(make_proposal("Modular arithmetic for final digits",
                                       ["b0 aaa", "b1 bbb"]), "Q_001", 0)
         for i in range(2, 14):
-            book.merge(e.id, make_proposal("Modular arithmetic for final digits",
+            memory.merge(e.id, make_proposal("Modular arithmetic for final digits",
                                            [f"b{i} unique bullet text"]),
                        f"Q_{i:03d}", i, max_bullets=8)
         assert len(e.bullets) == 8
 
-    def test_guard_rejection_prevents_write(self, book):
+    def test_guard_rejection_prevents_write(self, memory):
         p = make_proposal("Leaky entry title", ["Factor first", "The result is 204"])
-        res = consolidate_and_write(book, [p], "Find N.", "204", "integer", CFG,
+        res = consolidate_and_write(memory, [p], "Find N.", "204", "integer", CFG,
                                     "Q_001", 0)
-        assert res.rejected and not res.created and len(book) == 0
+        assert res.rejected and not res.created and len(memory) == 0
 
-    def test_merge_keys_on_concept_not_bullets(self, book):
+    def test_merge_keys_on_concept_not_bullets(self, memory):
         """Same skill, different steps, must merge.
 
-        This is the case that keeps bullets out of `skill_view`: with bullets included
+        This is the case that keeps bullets out of `identity_view`: with bullets included
         these two score ~0.71 and both get written.
         """
-        book.create(make_proposal("Modular arithmetic for final digits",
+        memory.create(make_proposal("Modular arithmetic for final digits",
                                   ["Reduce mod 10 before expanding",
                                    "Use Euler totient for large exponents"]), "Q_001", 0)
         p2 = make_proposal("Modular arithmetic for final digits",
                            ["Check whether the modulus is prime first",
                             "Fall back to Carmichael lambda when it is not"])
-        _, concept_sim = nearest_entry(book, p2)
+        _, concept_sim = nearest_entry(memory, p2)
         assert concept_sim >= CFG["curation"]["merge_threshold"]
-        res = consolidate_and_write(book, [p2], "unrelated question", None, "integer",
+        res = consolidate_and_write(memory, [p2], "unrelated question", None, "integer",
                                     CFG, "Q_002", 1)
-        assert res.merged and len(book) == 1
+        assert res.merged and len(memory) == 1
 
-    def test_unrelated_titles_in_one_domain_do_not_merge(self, book):
-        book.create(make_proposal("Modular arithmetic for final digits",
+    def test_unrelated_titles_in_one_domain_do_not_merge(self, memory):
+        memory.create(make_proposal("Modular arithmetic for final digits",
                                   ["Reduce mod 10 early", "Use Euler totient"]),
                     "Q_001", 0)
         p2 = make_proposal("Bounding solutions with the pigeonhole principle",
                            ["Count the containers before the objects",
                             "State the bound explicitly"],
                            tags=["strategy.pigeonhole"])
-        _, sim = nearest_entry(book, p2)
+        _, sim = nearest_entry(memory, p2)
         assert sim < CFG["curation"]["merge_threshold"]
-        res = consolidate_and_write(book, [p2], "unrelated question", None, "integer",
+        res = consolidate_and_write(memory, [p2], "unrelated question", None, "integer",
                                     CFG, "Q_002", 1)
-        assert res.created and len(book) == 2
+        assert res.created and len(memory) == 2
 
-    def test_nearest_entry_is_domain_scoped(self, book):
-        book.create(make_proposal("Modular arithmetic for final digits",
+    def test_nearest_entry_is_domain_scoped(self, memory):
+        memory.create(make_proposal("Modular arithmetic for final digits",
                                   ["Reduce mod 10 early", "Use Euler totient"]),
                     "Q_001", 0)
         p = make_proposal("Modular arithmetic for final digits",
                           ["Reduce mod 10 early", "Use Euler totient"],
                           domain="chemistry", tags=["knowledge.stereochemistry"])
-        assert nearest_entry(book, p) == (None, 0.0)
+        assert nearest_entry(memory, p) == (None, 0.0)
 
 
 # ------------------------------------------------------ quarantine and pruning
 
 class TestMaintenance:
-    def test_quarantine_needs_both_low_reliability_and_evidence(self, book):
-        e = book.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
+    def test_quarantine_needs_both_low_reliability_and_evidence(self, memory):
+        e = memory.create(make_proposal("t title here", ["aa bb", "cc dd"]), "Q_001", 0)
         e.meta.harmful, e.meta.helpful = 2.0, 0.0     # reliability 0.25, evidence 2.0
         e.meta.recompute_reliability()
-        assert book.quarantine_pass(CFG["pruning"], 1, "Q_002") == []
+        assert memory.quarantine_pass(CFG["pruning"], 1, "Q_002") == []
 
         e.meta.harmful = 5.0                          # evidence now above the floor
         e.meta.recompute_reliability()
-        assert book.quarantine_pass(CFG["pruning"], 2, "Q_003") == [e.id]
+        assert memory.quarantine_pass(CFG["pruning"], 2, "Q_003") == [e.id]
         assert e.status == "quarantined"
-        assert e.id in book.entries                   # retained for audit, not deleted
+        assert e.id in memory.entries                   # retained for audit, not deleted
 
-    def test_capacity_prune_drops_weakest_first(self, book):
+    def test_capacity_prune_drops_weakest_first(self, memory):
         for i in range(5):
-            e = book.create(make_proposal(f"Entry number {i} title",
+            e = memory.create(make_proposal(f"Entry number {i} title",
                                           [f"bullet a{i}", f"bullet b{i}"]),
                             f"Q_{i:03d}", i)
             e.meta.helpful = float(i)
             e.meta.recompute_reliability()
-        dropped = book.prune_to_capacity({"max_entries": 3}, 10, "Q_010")
+        dropped = memory.prune_to_capacity({"max_entries": 3}, 10, "Q_010")
         assert len(dropped) == 2
-        assert all(book.entries[e].meta.helpful >= 2.0 for e in book.entries)
+        assert all(memory.entries[e].meta.helpful >= 2.0 for e in memory.entries)
 
 
 # --------------------------------------------------------- verification signal
@@ -502,48 +502,48 @@ class TestVerification:
 # ---------------------------------------------------------- encoder invariant
 
 class TestEncoderInvariant:
-    def test_heads_start_as_identity_so_untrained_ccqs_is_the_frozen_base(self):
-        """The `ccqs.enabled: false` arm must be an EXACT control, not an approximate one.
+    def test_heads_start_as_identity_so_untrained_ccme_is_the_frozen_base(self):
+        """The `ccme.enabled: false` arm must be an EXACT control, not an approximate one.
 
         Random init would make the untrained arm a different retriever, and any measured
-        CCQS effect would confound "training helped" with "the projection changed".
+        CCME effect would confound "training helped" with "the projection changed".
         """
         enc = DualEncoder(HashingEncoder(dim=128))
         text = "identical text on both sides"
-        assert float(enc.encode_query(text) @ enc.encode_skill([text])[0]) ==             pytest.approx(1.0, abs=1e-5)
+        assert float(enc.encode_query(text) @ enc.encode_entries([text])[0]) ==             pytest.approx(1.0, abs=1e-5)
 
-    def test_head_update_invalidates_stored_vectors(self, book):
-        """Scoring a fresh query against vectors from an older Es is a silent failure:
+    def test_head_update_invalidates_stored_vectors(self, memory):
+        """Scoring a fresh query against vectors from an older E_m is a silent failure:
         the two sides come from different parameterizations and cosine means nothing."""
-        entry = book.create(make_proposal("Modular arithmetic for last digits",
+        entry = memory.create(make_proposal("Modular arithmetic for last digits",
                                           ["reduce early"]), "q1", 0)
-        book.vector(entry)
-        assert book._vector_version == book.encoder.version
-        assert entry.id in book._vectors
+        memory.vector(entry)
+        assert memory._vector_version == memory.encoder.version
+        assert entry.id in memory._vectors
 
-        book.encoder.bump_version()                    # what a CCQS update does
-        book.vector(entry)                             # next read must re-project
-        assert book._vector_version == book.encoder.version
+        memory.encoder.bump_version()                    # what a CCME update does
+        memory.vector(entry)                             # next read must re-project
+        assert memory._vector_version == memory.encoder.version
 
-    def test_query_and_skill_views_share_a_template(self):
+    def test_query_and_identity_views_share_a_template(self):
         plan = PlannerOutput("modular arithmetic for last digits", "math.number_theory",
                              ["strategy.modular_arithmetic"])
-        entry = SkillEntry(id="m_001", title="modular arithmetic for last digits",
+        entry = MemoryEntry(id="m_001", title="modular arithmetic for last digits",
                            bullets=["reduce early"], example="",
                            domain="math.number_theory",
                            tags=["strategy.modular_arithmetic"])
         for marker in ("| domain:", "| skills:"):
-            assert marker in plan.query_view() and marker in entry.skill_view()
+            assert marker in plan.query_view() and marker in entry.identity_view()
 
 
-# ----------------------------------------------------------------------- CCQS
+# ----------------------------------------------------------------------- CCME
 
-class TestCCQS:
+class TestCCME:
     def _trainer(self, **over):
         cfg = {"enabled": True, "k_upd": 2, "min_pairs": 1, "batch_size": 8,
                "steps_per_update": 2, "lr": 0.01}
         cfg.update(over)
-        return CCQSTrainer(DualEncoder(HashingEncoder(dim=64), proj_dim=32), cfg)
+        return CCMETrainer(DualEncoder(HashingEncoder(dim=64), proj_dim=32), cfg)
 
     def test_unused_redundant_is_not_a_negative(self):
         """It means relevant-but-already-covered. Repelling it teaches the wrong geometry."""
@@ -574,13 +574,13 @@ class TestCCQS:
         views = {"m_1": "modular arithmetic | domain: math.number_theory | skills: s.mod",
                  "m_2": "generating functions | domain: math.combinatorics | skills: s.gf"}
         attr = {"used_positive": ["m_1"], "unused_irrelevant": ["m_2"]}
-        before = t.encoder.ep.apply(t.encoder.base_vectors(["q | domain: x | skills: t"]))
+        before = t.encoder.eq.apply(t.encoder.base_vectors(["q | domain: x | skills: t"]))
         for step in range(4):
             t.observe("q | domain: x | skills: t", views, attr, step)
             t.maybe_update(step)
         assert t.stats.updates == 2                     # steps 1 and 3
         assert t.stats.last_loss is not None
-        after = t.encoder.ep.apply(t.encoder.base_vectors(["q | domain: x | skills: t"]))
+        after = t.encoder.eq.apply(t.encoder.base_vectors(["q | domain: x | skills: t"]))
         assert float(before[0] @ after[0]) < 1.0 - 1e-6
 
     def test_disabled_trainer_never_moves_the_heads(self):
@@ -604,7 +604,7 @@ class TestCCQS:
         t.reset()
         assert len(t.buffer) == 0 and t.stats.updates == 0
         text = "identical text on both sides"
-        assert float(t.encoder.encode_query(text) @ t.encoder.encode_skill([text])[0]) ==             pytest.approx(1.0, abs=1e-5)
+        assert float(t.encoder.encode_query(text) @ t.encoder.encode_entries([text])[0]) ==             pytest.approx(1.0, abs=1e-5)
 
 
 # ------------------------------------------------------------------- plumbing
@@ -617,86 +617,86 @@ class TestPlumbing:
     def test_extract_json_ignores_braces_inside_strings(self):
         assert extract_json('{"a": "not } a brace"}')["a"] == "not } a brace"
 
-    def test_pipeline_runs_end_to_end_offline(self, book, tmp_path):
+    def test_pipeline_runs_end_to_end_offline(self, memory, tmp_path):
         items = [Item(id=f"Q_{i:03d}", question=f"Question number {i}?",
                       answer_type="mcq_letter", gold="A", n_options=4,
                       dataset="smoke") for i in range(5)]
-        report = Pipeline(book, EchoLLM(answer="A"), CFG).run(items)
+        report = Pipeline(memory, EchoLLM(answer="A"), CFG).run(items)
         assert len(report.steps) == 5
         assert report.accuracy == 1.0
         assert report.summary()["errors"] == 0
 
-    def test_reset_per_run_empties_the_book(self, book):
+    def test_reset_per_run_empties_the_memory(self, memory):
         """pass@1 over 5-10 passes means 5-10 INDEPENDENT passes.
 
-        Resetting only Ep/Es left the book carried across passes, so run n answered items
+        Resetting only E_q/E_m left the memory carried across passes, so run n answered items
         that runs 1..n-1 had already written entries about -- the prequential break the
         reset exists to prevent, and it failed silently by drifting accuracy upward.
         """
-        book.create(make_proposal("Carried over from a previous pass",
+        memory.create(make_proposal("Carried over from a previous pass",
                                   ["Reduce mod 10 early", "Use Euler totient"]),
                     "Q_000", 0)
-        assert len(book) == 1
+        assert len(memory) == 1
         items = [Item(id="Q_001", question="A question?", answer_type="mcq_letter",
                       gold="A", n_options=4)]
-        Pipeline(book, EchoLLM(answer="A"), CFG).run(items)
-        assert not any(e.meta.created == "Q_000" for e in book.entries.values())
+        Pipeline(memory, EchoLLM(answer="A"), CFG).run(items)
+        assert not any(e.meta.created == "Q_000" for e in memory.entries.values())
 
-    def test_frozen_pass_keeps_its_prebuilt_book(self, book):
-        """reset_per_run must not empty the book a frozen pass is there to read.
+    def test_frozen_pass_keeps_its_prebuilt_memory(self, memory):
+        """reset_per_run must not empty the memory a frozen pass is there to read.
 
-        Frozen mode reads a book built elsewhere; that book is the experiment. Emptying it
+        Frozen mode reads a memory built elsewhere; that memory is the experiment. Emptying it
         would leave the frozen arm retrieving from nothing while still reporting a number.
         """
-        book.create(make_proposal("Modular arithmetic for final digits",
+        memory.create(make_proposal("Modular arithmetic for final digits",
                                   ["Reduce mod 10 early", "Use Euler totient"]),
                     "Q_000", 0)
         cfg = {**CFG, "run": {**CFG["run"], "write_enabled": False,
                               "reset_per_run": True}}
         items = [Item(id="Q_001", question="A question?", answer_type="mcq_letter",
                       gold="A", n_options=4)]
-        Pipeline(book, EchoLLM(answer="A"), cfg).run(items)
-        assert len(book) == 1
+        Pipeline(memory, EchoLLM(answer="A"), cfg).run(items)
+        assert len(memory) == 1
 
-    def test_frozen_mode_never_writes(self, book):
-        book.create(make_proposal("Modular arithmetic for final digits",
+    def test_frozen_mode_never_writes(self, memory):
+        memory.create(make_proposal("Modular arithmetic for final digits",
                                   ["Reduce mod 10 early", "Use Euler totient"]),
                     "Q_000", 0)
-        before = len(book)
+        before = len(memory)
         cfg = {**CFG, "run": {**CFG["run"], "write_enabled": False}}
         items = [Item(id="Q_001", question="A question?", answer_type="mcq_letter",
                       gold="A", n_options=4)]
-        report = Pipeline(book, EchoLLM(answer="A"), cfg).run(items)
-        assert len(book) == before and len(report.steps) == 1
-        assert not [r for r in book.write_log if r.query_id == "Q_001"]
+        report = Pipeline(memory, EchoLLM(answer="A"), cfg).run(items)
+        assert len(memory) == before and len(report.steps) == 1
+        assert not [r for r in memory.write_log if r.query_id == "Q_001"]
 
-    def test_a_failing_item_does_not_kill_the_run(self, book):
+    def test_a_failing_item_does_not_kill_the_run(self, memory):
         class Boom(EchoLLM):
             def complete_json(self, prompt, *, component, image=None):
-                if component == "c2":
+                if component == "solver":
                     raise RuntimeError("provider timeout")
                 return super().complete_json(prompt, component=component, image=image)
 
         items = [Item(id=f"Q_{i}", question="q?", answer_type="mcq_letter", gold="A")
                  for i in range(3)]
-        report = Pipeline(book, Boom(), CFG).run(items)
+        report = Pipeline(memory, Boom(), CFG).run(items)
         assert len(report.steps) == 3 and report.summary()["errors"] == 3
 
-    def test_report_metrics_are_computable(self, book):
+    def test_report_metrics_are_computable(self, memory):
         items = [Item(id=f"Q_{i:03d}", question=f"Q{i}?", answer_type="mcq_letter",
                       gold="A" if i % 2 == 0 else "B", n_options=4) for i in range(10)]
-        report = Pipeline(book, EchoLLM(answer="A"), CFG).run(items)
+        report = Pipeline(memory, EchoLLM(answer="A"), CFG).run(items)
         assert report.accuracy == pytest.approx(0.5)
         assert report.retrieval_precision == 0.0
         assert len(report.accumulation_curve(bucket=5)) == 2
 
-    def test_round_trip_persistence(self, book, tmp_path):
-        book.create(make_proposal("Modular arithmetic for final digits",
+    def test_round_trip_persistence(self, memory, tmp_path):
+        memory.create(make_proposal("Modular arithmetic for final digits",
                                   ["Reduce mod 10 early", "Use Euler totient"]),
                     "Q_001", 0)
-        path = tmp_path / "book.json"
-        book.save(path)
-        reloaded = SkillBook.load(path, book.encoder)
+        path = tmp_path / "memory.json"
+        memory.save(path)
+        reloaded = MemoryBank.load(path, memory.encoder)
         assert len(reloaded) == 1
         assert reloaded.entries["m_001"].title == "Modular arithmetic for final digits"
         assert reloaded._next_id == 2       # ids do not collide after reload
@@ -704,8 +704,8 @@ class TestPlumbing:
 
 # ------------------------------------------------------------------ tool calls
 # The solver may write a program and reason from what it really printed. Before this
-# existed, C2's prompt asked it to "reason from its result" and emit `coding_result` with
-# nothing running the code -- the model invented its own program's output and C3 was shown
+# existed, Solver's prompt asked it to "reason from its result" and emit `coding_result` with
+# nothing running the code -- the model invented its own program's output and Curator was shown
 # that invention as if it were execution evidence.
 
 class TestTools:
@@ -753,57 +753,57 @@ class TestTools:
 
 
 class TestSolverToolLoop:
-    def test_tool_result_reaches_the_solver_and_is_recorded(self, book):
+    def test_tool_result_reaches_the_solver_and_is_recorded(self, memory):
         items = [Item(id="Q_001", question="What is 2+2?", answer_type="integer",
                       gold="4")]
         llm = EchoLLM(answer="4", tool_code="print(2+2)")
-        report = Pipeline(book, llm, CFG).run(items)
+        report = Pipeline(memory, llm, CFG).run(items)
         step = report.steps[0]
         assert step.tool_calls == 1 and step.tool_failures == 0
         assert step.tool_expected is True
 
-    def test_llm_calls_counts_the_tool_round_trip(self, book):
+    def test_llm_calls_counts_the_tool_round_trip(self, memory):
         """Accuracy at matched cost is the comparison the paper turns on, so a tool
         round-trip must show up in the denominator. It used to be hardcoded to 3."""
         items = [Item(id="Q_001", question="What is 2+2?", answer_type="integer",
                       gold="4")]
-        plain = Pipeline(book, EchoLLM(answer="4"), CFG).run(items)
-        assert plain.steps[0].llm_calls == 3          # C1 + C2 + C3
+        plain = Pipeline(memory, EchoLLM(answer="4"), CFG).run(items)
+        assert plain.steps[0].llm_calls == 3          # Planner + Solver + Curator
 
-        book2 = SkillBook(encoder=DualEncoder(HashingEncoder(dim=256)))
+        book2 = MemoryBank(encoder=DualEncoder(HashingEncoder(dim=256)))
         tooled = Pipeline(book2, EchoLLM(answer="4", tool_code="print(4)"), CFG).run(items)
-        assert tooled.steps[0].llm_calls == 4          # C1 + C2(tool) + C2(answer) + C3
+        assert tooled.steps[0].llm_calls == 4          # Planner + Solver(tool) + Solver(answer) + Curator
 
-    def test_real_output_overwrites_the_models_claim(self, book):
+    def test_real_output_overwrites_the_models_claim(self, memory):
         """A model that misreports what its own program printed must not be able to
-        mislead C3, and the disagreement is counted rather than hidden."""
+        mislead Curator, and the disagreement is counted rather than hidden."""
         items = [Item(id="Q_001", question="What is 2+2?", answer_type="integer",
                       gold="4")]
         llm = EchoLLM(answer="4", tool_code="print(4)", claim_result="999")
-        report = Pipeline(book, llm, CFG).run(items)
+        report = Pipeline(memory, llm, CFG).run(items)
         assert report.violations.get("solver_fabricated_coding_result") == 1
 
-    def test_budget_forces_an_answer(self, book):
+    def test_budget_forces_an_answer(self, memory):
         """A model that only ever requests tools must still produce an answer, or the item
         fails for a reason unrelated to the question."""
         class AlwaysTool(EchoLLM):
             def complete_json(self, prompt, *, component, image=None):
-                if component == "c2":
+                if component == "solver":
                     self.calls.append(component)
                     return {"action": "tool", "tool": "python", "code": "print(1)"}
                 return super().complete_json(prompt, component=component, image=image)
 
         cfg = {**CFG, "tools": {"enabled": True, "max_calls_per_item": 2, "timeout_s": 10}}
         items = [Item(id="Q_001", question="Q?", answer_type="integer", gold="4")]
-        report = Pipeline(book, AlwaysTool(answer="4"), cfg).run(items)
+        report = Pipeline(memory, AlwaysTool(answer="4"), cfg).run(items)
         assert report.steps[0].tool_calls == 2
         assert report.steps[0].error is None
 
-    def test_tools_disabled_never_executes(self, book):
+    def test_tools_disabled_never_executes(self, memory):
         cfg = {**CFG, "tools": {"enabled": False}}
         items = [Item(id="Q_001", question="Q?", answer_type="integer", gold="4")]
         llm = EchoLLM(answer="4", tool_code="print(2+2)")
-        report = Pipeline(book, llm, cfg).run(items)
+        report = Pipeline(memory, llm, cfg).run(items)
         assert report.steps[0].tool_calls == 0 and report.steps[0].llm_calls == 3
 
 
@@ -822,33 +822,33 @@ class TestVerificationSources:
         sig = signal_from_exec("boom", "204", "integer", recorded=rec)
         assert sig.correct is False
 
-    def test_consistency_actually_draws_samples(self, book):
+    def test_consistency_actually_draws_samples(self, memory):
         """`source: consistency` used to degrade silently to a judge signal carrying
         correct=None -- the supervision ablation looked like it ran, and had not."""
         cfg = {**CFG, "verification": {**CFG["verification"], "source": "consistency",
                                        "consistency_samples": 3}}
         items = [Item(id="Q_001", question="Q?", answer_type="mcq_letter", gold=None,
                       n_options=4)]
-        report = Pipeline(book, EchoLLM(answer="A"), cfg).run(items)
+        report = Pipeline(memory, EchoLLM(answer="A"), cfg).run(items)
         step = report.steps[0]
         assert step.signal_source == "consistency"
-        assert step.llm_calls == 5          # C1 + 3 solver samples + C3
+        assert step.llm_calls == 5          # Planner + 3 solver samples + Curator
 
-    def test_judge_source_carries_a_verdict(self, book):
+    def test_judge_source_carries_a_verdict(self, memory):
         """It used to return correct=None for every item because the pipeline never
         passed judge_correct -- a source that moved no counter while config claimed it was
         active."""
         cfg = {**CFG, "verification": {**CFG["verification"], "source": "judge"}}
         items = [Item(id="Q_001", question="Q?", answer_type="mcq_letter", gold=None,
                       n_options=4)]
-        report = Pipeline(book, EchoLLM(answer="A"), cfg).run(items)
+        report = Pipeline(memory, EchoLLM(answer="A"), cfg).run(items)
         assert report.steps[0].signal_source == "judge"
         assert report.steps[0].signal_confidence <= 0.6
 
 
 class TestIdentityInitIsExact:
     def test_null_proj_dim_preserves_the_base_geometry(self):
-        """The ccqs.enabled:false arm is the only internal control isolating CCQS, so an
+        """The ccme.enabled:false arm is the only internal control isolating CCME, so an
         untrained head must reproduce frozen-base retrieval EXACTLY. A smaller proj_dim
         makes the identity a truncation instead -- at 256 over 384 it shifts pairwise
         cosines by ~0.10, and the control becomes a different retriever."""
@@ -858,11 +858,11 @@ class TestIdentityInitIsExact:
                  "stereochemistry of chiral centres | domain: chemistry"]
         raw = base.encode(texts)
         exact = DualEncoder(base, proj_dim=None)
-        got = exact.encode_skill(texts)
+        got = exact.encode_entries(texts)
         assert np.allclose(raw @ raw.T, got @ got.T, atol=1e-6)
 
         truncated = DualEncoder(base, proj_dim=256)
-        cut = truncated.encode_skill(texts)
+        cut = truncated.encode_entries(texts)
         assert not np.allclose(raw @ raw.T, cut @ cut.T, atol=1e-3)
 
 
@@ -904,28 +904,28 @@ class TestProviderClient:
         """Models emit ```json fences despite instructions. Failing the item over
         formatting would confound the measurement with a parser bug."""
         c = make_client(['```json\n{"answer": "A"}\n```'])
-        assert c.complete_json("p", component="c2") == {"answer": "A"}
+        assert c.complete_json("p", component="solver") == {"answer": "A"}
 
     def test_transient_error_is_retried_with_backoff(self):
         """A 12k-item MMLU-Pro run hits 429s. Treating one as fatal loses the run."""
         c = make_client([TransientProviderError("429 rate limit"), '{"ok": true}'])
-        assert c.complete_json("p", component="c1") == {"ok": True}
+        assert c.complete_json("p", component="planner") == {"ok": True}
         assert len(c.transport.calls) == 2
         assert len(c.slept) == 1 and c.slept[0] > 0
-        assert c.usage.by_component["c1"].retries == 1
+        assert c.usage.by_component["planner"].retries == 1
         # Only the successful call is billed.
-        assert c.usage.by_component["c1"].calls == 1
+        assert c.usage.by_component["planner"].calls == 1
 
     def test_retry_after_header_is_honoured(self):
         c = make_client([TransientProviderError("429", retry_after=7.0), '{"ok": 1}'],
                         backoff_base_s=1.0)
-        c.complete_json("p", component="c1")
+        c.complete_json("p", component="planner")
         assert 7.0 <= c.slept[0] <= 7.5      # server's number, plus a little jitter
 
     def test_retries_are_bounded_then_raise(self):
         c = make_client([TransientProviderError("boom")] * 3, max_retries=2)
         with pytest.raises(TransientProviderError):
-            c.complete_json("p", component="c2")
+            c.complete_json("p", component="solver")
         assert len(c.transport.calls) == 3
 
     def test_non_retryable_error_is_not_retried(self):
@@ -933,21 +933,21 @@ class TestProviderClient:
         just delays the traceback."""
         c = make_client([ProviderError("HTTP 400: bad request")])
         with pytest.raises(ProviderError):
-            c.complete_json("p", component="c1")
+            c.complete_json("p", component="planner")
         assert len(c.transport.calls) == 1
 
     def test_parse_failure_retries_twice_then_raises(self):
         c = make_client(["not json at all"] * 3, max_parse_retries=2)
         with pytest.raises(ParseFailure):
-            c.complete_json("p", component="c3")
+            c.complete_json("p", component="curator")
         assert len(c.transport.calls) == 3
-        assert c.usage.by_component["c3"].parse_failures == 3
+        assert c.usage.by_component["curator"].parse_failures == 3
 
     def test_parse_retry_changes_the_conversation(self):
         """Resending the identical prompt at temperature 0 reproduces the identical
         malformed output, so the retry has to correct rather than repeat."""
         c = make_client(["sorry, no JSON", '{"answer": "B"}'])
-        assert c.complete_json("p", component="c2") == {"answer": "B"}
+        assert c.complete_json("p", component="solver") == {"answer": "B"}
         second = c.transport.calls[1]["messages"]
         assert len(second) == 3
         assert second[1]["role"] == "assistant" and second[1]["content"] == "sorry, no JSON"
@@ -958,15 +958,15 @@ class TestProviderClient:
         traceback that points at the schema rather than at the model."""
         c = make_client(["[1, 2, 3]"] * 3, max_parse_retries=2)
         with pytest.raises(ParseFailure):
-            c.complete_json("p", component="c1")
+            c.complete_json("p", component="planner")
 
     def test_components_route_to_different_models(self):
         """A small planner with a large solver is the cheap ablation the notes call for,
         and the pipeline already routes `component`."""
         c = make_client(['{"a": 1}', '{"a": 2}'], model="gpt-4o-mini",
-                        components={"c2": {"model": "gpt-4o", "temperature": 0.7}})
-        c.complete_json("p", component="c1")
-        c.complete_json("p", component="c2")
+                        components={"solver": {"model": "gpt-4o", "temperature": 0.7}})
+        c.complete_json("p", component="planner")
+        c.complete_json("p", component="solver")
         assert c.transport.calls[0]["model"] == "gpt-4o-mini"
         assert c.transport.calls[0]["temperature"] == 0.0
         assert c.transport.calls[1]["model"] == "gpt-4o"
@@ -978,11 +978,11 @@ class TestProviderClient:
         reply = TransportReply(text='{"ok": 1}', prompt_tokens=1_000_000,
                                completion_tokens=1_000_000)
         c = make_client([reply, reply], model="gpt-4o-mini")
-        c.complete_json("p", component="c1")
-        c.complete_json("p", component="c3")
+        c.complete_json("p", component="planner")
+        c.complete_json("p", component="curator")
         s = c.usage.summary()
         assert s["calls"] == 2
-        assert s["by_component"]["c1"]["cost_usd"] == pytest.approx(0.15 + 0.60)
+        assert s["by_component"]["planner"]["cost_usd"] == pytest.approx(0.15 + 0.60)
         assert s["cost_usd"] == pytest.approx(2 * 0.75)
         assert s["priced"] is True
 
@@ -992,20 +992,20 @@ class TestProviderClient:
         c = make_client([TransportReply(text='{"ok": 1}', prompt_tokens=1000,
                                         cached_prompt_tokens=400, completion_tokens=0)],
                         model="gpt-4o-mini")
-        c.complete_json("p", component="c2")
+        c.complete_json("p", component="solver")
         expected = 600 / 1e6 * 0.15 + 400 / 1e6 * 0.075
         assert c.usage.total_cost_usd == pytest.approx(expected)
 
     def test_unpriced_model_reports_zero_not_a_guess(self):
         c = make_client(['{"ok": 1}'], model="some-open-weight-7b")
-        c.complete_json("p", component="c1")
+        c.complete_json("p", component="planner")
         assert c.usage.summary()["priced"] is False
         assert c.usage.total_cost_usd == 0.0
 
     def test_image_becomes_a_data_uri_part(self):
         png = b"\x89PNG\r\n\x1a\n" + b"payload"
         c = make_client(['{"ok": 1}'])
-        c.complete_json("p", component="c2", image=png)
+        c.complete_json("p", component="solver", image=png)
         content = c.transport.calls[0]["messages"][0]["content"]
         assert content[0] == {"type": "text", "text": "p"}
         assert content[1]["image_url"]["url"].startswith("data:image/png;base64,")
@@ -1022,7 +1022,7 @@ class TestProviderClient:
     def test_text_only_model_refuses_an_image_instead_of_dropping_it(self):
         c = make_client([], supports_images=False)
         with pytest.raises(ProviderError):
-            c.complete_json("p", component="c2", image=b"\x89PNG\r\n\x1a\n")
+            c.complete_json("p", component="solver", image=b"\x89PNG\r\n\x1a\n")
         assert c.transport.calls == []
 
     def test_consistency_at_temperature_zero_is_refused_at_construction(self):
@@ -1034,9 +1034,9 @@ class TestProviderClient:
         with pytest.raises(ProviderError):
             ProviderLLM.from_config(cfg, transport=_FakeTransport([]))
 
-        cfg["llm"]["components"] = {"c2": {"temperature": 0.8}}
+        cfg["llm"]["components"] = {"solver": {"temperature": 0.8}}
         client = ProviderLLM.from_config(cfg, transport=_FakeTransport([]))
-        assert client.specs["c2"].temperature == 0.8
+        assert client.specs["solver"].temperature == 0.8
 
     def test_key_file_is_parsed_and_never_echoed(self):
         """`lere/tools.py` keeps the key out of the executor's environment on purpose; a
@@ -1072,7 +1072,7 @@ class TestProviderClient:
         """The whole interface is one method; if this drifts, nothing else matters."""
         c = make_client(['{"ok": 1}'])
         pipeline_style_call = ProviderLLM.complete_json
-        assert pipeline_style_call(c, "prompt", component="c1", image=None) == {"ok": 1}
+        assert pipeline_style_call(c, "prompt", component="planner", image=None) == {"ok": 1}
 
     def test_component_spec_cost_is_pure_arithmetic(self):
         spec = ComponentSpec(model="m", temperature=0.0, max_tokens=10,
@@ -1116,7 +1116,7 @@ class TestAimeLoader:
     @needs_data
     def test_worked_solutions_never_reach_the_item(self):
         """AIME_2024's metadata carries the answer with its derivation attached. `guard.py`
-        protects the book from the question, not from the loader."""
+        protects the memory from the question, not from the loader."""
         items = load_aime_2024()
         assert any(i.meta["solution_withheld"] for i in items)
         for it in items:
@@ -1190,14 +1190,14 @@ class TestAimeLoader:
 # ---------------------------------------------------------------- instrumentation hooks
 
 class TestObserverHooks:
-    """The gap: a demo needs the book, the heads and the loss AFTER the write phase, and
+    """The gap: a demo needs the memory, the heads and the loss AFTER the write phase, and
     every prompt and raw response, none of which any structure kept. Both hooks are None
     by default, so an untraced run must be byte-identical to before."""
 
-    def test_pipeline_on_step_fires_once_per_completed_step(self, book):
+    def test_pipeline_on_step_fires_once_per_completed_step(self, memory):
         cfg = dict(CFG)
         cfg["run"] = {"batch_size": 1, "write_enabled": True, "seed": None}
-        pipe = Pipeline(book, EchoLLM(answer="7"), cfg)
+        pipe = Pipeline(memory, EchoLLM(answer="7"), cfg)
         seen = []
         pipe.on_step = lambda p, report, loss: seen.append((p.record.step, p.item.id, loss))
         items = [Item(id="i%d" % i, question="q%d" % i, answer_type="integer", gold="7")
@@ -1206,11 +1206,11 @@ class TestObserverHooks:
         assert [s[0] for s in seen] == [0, 1, 2]
         assert [s[1] for s in seen] == ["i0", "i1", "i2"]
 
-    def test_untraced_run_is_unchanged(self, book):
+    def test_untraced_run_is_unchanged(self, memory):
         """`on_step` defaults to None and must never be consulted."""
         cfg = dict(CFG)
         cfg["run"] = {"batch_size": 1, "write_enabled": True, "seed": None}
-        pipe = Pipeline(book, EchoLLM(answer="7"), cfg)
+        pipe = Pipeline(memory, EchoLLM(answer="7"), cfg)
         assert pipe.on_step is None
         rep = pipe.run([Item(id="i0", question="q", answer_type="integer", gold="7")])
         assert len(rep.steps) == 1
@@ -1221,7 +1221,7 @@ class TestObserverHooks:
         seen = []
         c = ProviderLLM(transport=_FakeTransport(['```json\n{"a": 1}\n```']),
                         on_call=lambda **kw: seen.append(kw))
-        c.complete_json("the prompt", component="c1")
+        c.complete_json("the prompt", component="planner")
         assert len(seen) == 1
         assert seen[0]["raw_text"] == '```json\n{"a": 1}\n```'
         assert seen[0]["parsed"] == {"a": 1}
@@ -1232,33 +1232,33 @@ class TestObserverHooks:
         seen = []
         c = ProviderLLM(transport=_FakeTransport(["junk", '{"a": 1}']),
                         on_call=lambda **kw: seen.append(kw))
-        c.complete_json("p", component="c2")
+        c.complete_json("p", component="solver")
         assert [k["attempts"] for k in seen] == [2]      # fired only on the parse that won
 
     def test_call_recorder_advances_on_c1(self, tmp_path):
-        """C1 runs exactly once per item and always first, so it is the item boundary;
+        """Planner runs exactly once per item and always first, so it is the item boundary;
         the driver cannot supply the step because `Pipeline.run` owns the loop."""
         rec = CallRecorder(JsonlWriter(tmp_path / "calls.jsonl"))
         stub = TracedLLM(EchoLLM(answer="1"), rec)
         for _ in range(2):
-            stub.complete_json("p", component="c1")
-            stub.complete_json("p", component="c2")
-            stub.complete_json("p", component="c3")
+            stub.complete_json("p", component="planner")
+            stub.complete_json("p", component="solver")
+            stub.complete_json("p", component="curator")
         assert [c["step"] for c in rec.calls] == [0, 0, 0, 1, 1, 1]
         assert len(rec.slice_for_step(1)) == 3
 
 
 class TestTracingRetriever:
-    def test_records_candidates_the_retriever_dropped(self, book):
+    def test_records_candidates_the_retriever_dropped(self, memory):
         """An empty result cannot say WHY. 'best candidate scored 0.43 against a 0.60
         floor' is the finding, and it is what threshold recalibration needs."""
         for i, title in enumerate(["Modular casework", "Chirality of stereocenters"]):
-            book.create(make_proposal(title, ["b1", "b2"],
+            memory.create(make_proposal(title, ["b1", "b2"],
                                       domain="math.number_theory" if i == 0 else "chemistry"),
                         "q0", 0)
         cfg = {"top_k": 3, "sim_threshold": 0.99, "alpha": 0.7, "domain_filter": "soft",
                "domain_penalty": 0.25, "domain_partial_credit": 0.6, "mmr_lambda": 0.7}
-        r = TracingRetriever(book, cfg, JsonlWriter("/dev/null"))
+        r = TracingRetriever(memory, cfg, JsonlWriter("/dev/null"))
         plan = PlannerOutput.parse(
             {"semantic_context": "modular casework", "domain": "math.number_theory",
              "tags": ["strategy.casework"], "retrieval_query": "modular casework",
@@ -1270,13 +1270,13 @@ class TestTracingRetriever:
         assert r.last["best_raw_sim"] is not None
         assert all(not c["selected"] for c in r.last["candidates"])
         assert r.last["scoring_drift"] == []
-        assert len(r.last["ep_query_vector"]) == book.encoder.dim
+        assert len(r.last["ep_query_vector"]) == memory.encoder.dim
 
-    def test_selected_entries_are_flagged_and_consistent(self, book):
-        book.create(make_proposal("Modular casework", ["b1"]), "q0", 0)
+    def test_selected_entries_are_flagged_and_consistent(self, memory):
+        memory.create(make_proposal("Modular casework", ["b1"]), "q0", 0)
         cfg = {"top_k": 3, "sim_threshold": -1.0, "alpha": 0.7, "domain_filter": "soft",
                "domain_penalty": 0.25, "domain_partial_credit": 0.6, "mmr_lambda": 0.7}
-        r = TracingRetriever(book, cfg, JsonlWriter("/dev/null"))
+        r = TracingRetriever(memory, cfg, JsonlWriter("/dev/null"))
         plan = PlannerOutput.parse(
             {"semantic_context": "modular casework", "domain": "math.number_theory",
              "tags": ["strategy.casework"], "retrieval_query": "modular casework",
@@ -1285,7 +1285,7 @@ class TestTracingRetriever:
         assert [s.id for s in selected] == r.last["selected_ids"]
         assert [c["selected"] for c in r.last["candidates"]] == [True]
         assert r.last["scoring_drift"] == []               # the duplicated math agrees
-        assert r.last["encoder_version"] == book.encoder.version
+        assert r.last["encoder_version"] == memory.encoder.version
 
 
 class TestHeadGeometry:
@@ -1294,20 +1294,20 @@ class TestHeadGeometry:
         evidence the heads moved. `delta_from_identity` is."""
         enc = DualEncoder(HashingEncoder(dim=32))
         s0 = head_stats(enc)
-        assert s0["ep"]["delta_from_identity"] == 0.0
-        assert s0["es"]["delta_from_identity"] == 0.0
+        assert s0["eq"]["delta_from_identity"] == 0.0
+        assert s0["em"]["delta_from_identity"] == 0.0
 
         enc.reset_heads()
         assert head_stats(enc)["version"] > s0["version"]          # version moved
-        assert head_stats(enc)["ep"]["delta_from_identity"] == 0.0  # the head did not
+        assert head_stats(enc)["eq"]["delta_from_identity"] == 0.0  # the head did not
 
-        w = head_weights(enc)["ep"]
+        w = head_weights(enc)["eq"]
         assert w.shape == (32, 32)
         assert np.allclose(w, np.eye(32), atol=1e-6)
 
 
 class TestVocabularyReachesTheModel:
-    """The gap the 1-item probe found: C1's and C3's prompts said `domain` must come from
+    """The gap the 1-item probe found: Planner's and Curator's prompts said `domain` must come from
     'the closed list in taxonomy.md' and nothing ever showed the model that list. It
     answered `number_theory` and `mathematics`, every tag was dropped, and the guard then
     rejected the entry as `no_valid_tags`."""
@@ -1322,13 +1322,13 @@ class TestVocabularyReachesTheModel:
         assert "math.other" in block and "mathematics" in block
 
     def test_both_prompts_carry_the_slot(self):
-        for name in ("c1_planner.md", "c3_curator.md"):
+        for name in ("planner.md", "curator.md"):
             assert "{{vocabulary}}" in load_prompt(name), name
 
-    def test_rendered_prompts_contain_the_domains(self, book):
+    def test_rendered_prompts_contain_the_domains(self, memory):
         """Rendering is where the slot could silently go unfilled: `render` replaces
         unknown `{{slot}}` markers with empty string rather than raising."""
-        pipe = Pipeline(book, EchoLLM(), CFG)
+        pipe = Pipeline(memory, EchoLLM(), CFG)
         item = Item(id="i", question="q?", answer_type="integer", gold="1")
         seen = {}
 
@@ -1339,13 +1339,13 @@ class TestVocabularyReachesTheModel:
 
         pipe.llm = Spy()
         pipe.plan(item, VocabViolations())
-        assert "math.number_theory" in seen["c1"]
-        assert "{{vocabulary}}" not in seen["c1"]
+        assert "math.number_theory" in seen["planner"]
+        assert "{{vocabulary}}" not in seen["planner"]
 
 
 class TestAnswerPhraseGuard:
     """The other probe finding: the answer-phrase regex matched `result = 0` inside a
-    Python example, so it rejected the `tool.*` entries C3's own prompt asks for."""
+    Python example, so it rejected the `tool.*` entries Curator's own prompt asks for."""
 
     def test_code_assignment_is_not_an_answer_claim(self):
         entry = ProposedEntry(
@@ -1378,7 +1378,7 @@ class TestAnswerPhraseGuard:
 
 
 class TestToolRepeats:
-    """The gap the live C2 trace exposed: the solver re-emitted byte-identical code three
+    """The gap the live Solver trace exposed: the solver re-emitted byte-identical code three
     times, got the same output three times, and spent its whole budget. Nothing noticed,
     and each repeat cost a full LLM turn out of `llm_calls_per_item` -- the denominator
     the matched-cost comparison turns on."""
@@ -1388,15 +1388,15 @@ class TestToolRepeats:
         cfg["run"] = {"batch_size": 1, "write_enabled": True, "seed": None}
         cfg["tools"] = {"enabled": True, "max_calls_per_item": 3, "timeout_s": 10,
                         "max_output_chars": 4000}
-        book = SkillBook(encoder=DualEncoder(HashingEncoder(dim=256)))
+        memory = MemoryBank(encoder=DualEncoder(HashingEncoder(dim=256)))
         llm = EchoLLM(answer="7", tool_code="print(7)")
-        pipe = Pipeline(book, llm, cfg)
+        pipe = Pipeline(memory, llm, cfg)
         item = Item(id="i0", question="q?", answer_type="integer", gold="7")
         v = VocabViolations()
         plan = pipe.plan(item, v)
         solver, transcript, calls = pipe.solve(item, [], plan, v)
 
-        # EchoLLM asks for the tool on its first C2 turn only, so exactly one execution.
+        # EchoLLM asks for the tool on its first Solver turn only, so exactly one execution.
         assert transcript.calls == 1
         assert transcript.repeats == 0
         assert "solver_repeated_identical_code" not in v
@@ -1431,8 +1431,8 @@ class TestToolRepeats:
     def test_planner_hint_decays_after_the_first_run(self):
         cfg = dict(CFG)
         cfg["tools"] = {"enabled": True, "max_calls_per_item": 3, "timeout_s": 10}
-        book = SkillBook(encoder=DualEncoder(HashingEncoder(dim=256)))
-        pipe = Pipeline(book, EchoLLM(), cfg)
+        memory = MemoryBank(encoder=DualEncoder(HashingEncoder(dim=256)))
+        pipe = Pipeline(memory, EchoLLM(), cfg)
         plan = PlannerOutput.parse(
             {"semantic_context": "x", "domain": "other", "tags": ["strategy.casework"],
              "retrieval_query": "x", "tool_expected": True}, VocabViolations())
@@ -1450,7 +1450,7 @@ class TestToolRepeats:
 
 
 class TestExecIsNotAnIndependentCheck:
-    """The live C2 trace made this concrete: the solver's program was wrong, it read its
+    """The live Solver trace made this concrete: the solver's program was wrong, it read its
     answer off that program, and `exec` certified the wrong answer at confidence 0.9 --
     higher than it gave disagreement. Agreement checks transcription; disagreement is the
     direction that carries information."""
@@ -1467,7 +1467,7 @@ class TestExecIsNotAnIndependentCheck:
         assert "CONTRADICTS" in disagree.detail
 
     def test_evidence_weight_reflects_the_asymmetry(self):
-        """confidence x gain is what actually reaches the book."""
+        """confidence x gain is what actually reaches the memory."""
         gains = CFG_EXEC["gains"]
         agree = signal_from_exec("", "0", "integer",
                                  recorded=ToolResult(ok=True, stdout="0", code="c"))
@@ -1505,16 +1505,16 @@ class TestExecIsNotAnIndependentCheck:
 
 
 class TestCuratorVerdictIsTheLabel:
-    """The gap: `CuratorOutput.correct` was parsed and never read by anything, and C3's
+    """The gap: `CuratorOutput.correct` was parsed and never read by anything, and Curator's
     prompt told it to adopt the signal under `exec` -- the source we established is
-    circular. C3 said `reasoning_sound: false` on a wrong answer and it changed nothing."""
+    circular. Curator said `reasoning_sound: false` on a wrong answer and it changed nothing."""
 
     VCFG = {"judge_confidence_cap": 0.6,
             "gains": {"gt": {"positive": 1.0, "negative": 1.0},
                       "exec": {"positive": 0.5, "negative": 1.0}}}
 
     def test_gt_is_never_overridden(self):
-        """Gold is ground truth. Letting C3 second-guess it would corrupt the supervised
+        """Gold is ground truth. Letting Curator second-guess it would corrupt the supervised
         arm, which is the control the gt-vs-consistency ablation depends on."""
         assert AUTHORITATIVE_SOURCES == ("gt",)
         sig = signal_from_gt("0", "70", "integer")
@@ -1545,7 +1545,7 @@ class TestCuratorVerdictIsTheLabel:
         assert out is sig and overridden is False
 
     def test_an_override_never_raises_confidence(self):
-        """An override is C3's judgement, not a stronger measurement."""
+        """An override is Curator's judgement, not a stronger measurement."""
         sig = VerificationSignal(correct=True, confidence=0.95, source="exec", detail="x")
         out, _ = resolve_verdict(sig, curator_correct=False, cfg=self.VCFG)
         assert out.confidence == 0.6                   # capped at judge_confidence_cap
@@ -1554,17 +1554,17 @@ class TestCuratorVerdictIsTheLabel:
         assert out2.confidence == 0.2                  # and never raised
 
 
-class TestCCQSRecordsTheVerdictWithoutGating:
-    """A CCQS positive asserts *retrieval relevance* -- "this query should have surfaced
+class TestCCMERecordsTheVerdictWithoutGating:
+    """A CCME positive asserts *retrieval relevance* -- "this query should have surfaced
     this entry" -- not that the item was solved. A solver holding the right note and
     slipping on the arithmetic does not make the note less relevant, and gating on the
-    outcome would discard pairs on exactly the items where the book is being built.
+    outcome would discard pairs on exactly the items where the memory is being built.
     Reliability is the consumer that legitimately keys on the outcome; the geometry is not.
     """
 
     def _trainer(self):
         enc = DualEncoder(HashingEncoder(dim=64))
-        return CCQSTrainer(enc, {"enabled": True, "k_upd": 1, "min_pairs": 1})
+        return CCMETrainer(enc, {"enabled": True, "k_upd": 1, "min_pairs": 1})
 
     ATTR = {"used_positive": ["m_001"], "used_negative": [],
             "unused_irrelevant": ["m_002"], "unused_redundant": []}
@@ -1623,31 +1623,31 @@ class TestBlameDependsOnRootCause:
         return {"gains": {"exec": {"positive": 0.5, "negative": 1.0}},
                 "used_but_wrong_factor": 0.5, "blame_by_root_cause": dict(self.BLAME)}
 
-    def _apply(self, book, root_cause, correct):
-        e = book.create(make_proposal("Modular casework", ["a", "b"]), "q0", 0)
+    def _apply(self, memory, root_cause, correct):
+        e = memory.create(make_proposal("Modular casework", ["a", "b"]), "q0", 0)
         cur = CuratorOutput(correct=correct, reasoning_sound=False, verdict_source="self",
                             reason="r", root_cause=root_cause,
                             attribution={"used_positive": [e.id], "used_negative": [],
                                          "unused_irrelevant": [], "unused_redundant": []},
                             lesson="l", sufficient=0, proposed_entries=[])
         sig = VerificationSignal(correct=correct, confidence=1.0, source="exec", detail="")
-        return apply_attribution(book, cur, sig, self._cfg(), "q0", 0)[e.id]
+        return apply_attribution(memory, cur, sig, self._cfg(), "q0", 0)[e.id]
 
-    def test_a_bad_reference_takes_full_blame(self, book):
-        h, x = self._apply(book, "bad_reference", correct=False)
+    def test_a_bad_reference_takes_full_blame(self, memory):
+        h, x = self._apply(memory, "bad_reference", correct=False)
         assert h == 0.0 and x == pytest.approx(1.0)          # 1.0 conf * 1.0 gain * 1.0
 
-    def test_a_solver_slip_blames_the_note_in_full(self, book):
+    def test_a_solver_slip_blames_the_note_in_full(self, memory):
         """v2: root_cause is recorded but no longer scales evidence."""
-        h, x = self._apply(book, "computational_slip", correct=False)
+        h, x = self._apply(memory, "computational_slip", correct=False)
         assert h == 0.0 and x == pytest.approx(1.0)
 
-    def test_an_unlisted_cause_also_blames_in_full(self, book):
-        h, x = self._apply(book, "conceptual_gap", correct=False)
+    def test_an_unlisted_cause_also_blames_in_full(self, memory):
+        h, x = self._apply(memory, "conceptual_gap", correct=False)
         assert x == pytest.approx(1.0)
 
-    def test_a_correct_answer_is_unaffected_by_root_cause(self, book):
-        h, x = self._apply(book, "bad_reference", correct=True)
+    def test_a_correct_answer_is_unaffected_by_root_cause(self, memory):
+        h, x = self._apply(memory, "bad_reference", correct=True)
         assert x == 0.0 and h == pytest.approx(1.0)          # v2: 1.0 conf, gain 1.0
 
     def test_root_cause_is_a_closed_vocabulary(self):
@@ -1719,7 +1719,7 @@ class TestOverridingAnAbsentSignal:
     """Found in the first 30-item runs: two of three `used_negative` events applied no
     evidence. `exec` had returned `correct=None` at confidence 0.0 ("recorded run printed
     nothing"), the override clamped to `min(0.0, cap)`, and the curator's verdict reached
-    the book weightless."""
+    the memory weightless."""
 
     VCFG = {"judge_confidence_cap": 0.6,
             "gains": {"exec": {"positive": 0.5, "negative": 1.0},
@@ -1743,9 +1743,9 @@ class TestOverridingAnAbsentSignal:
         out2, _ = resolve_verdict(strong, curator_correct=False, cfg=self.VCFG)
         assert out2.confidence == 0.6             # capped, not raised
 
-    def test_the_evidence_now_actually_lands(self, book):
+    def test_the_evidence_now_actually_lands(self, memory):
         """End to end: the exact shape of the two voided events."""
-        e = book.create(make_proposal("Modular casework", ["a", "b"]), "q0", 0)
+        e = memory.create(make_proposal("Modular casework", ["a", "b"]), "q0", 0)
         absent = VerificationSignal(correct=None, confidence=0.0, source="exec", detail="")
         sig, _ = resolve_verdict(absent, curator_correct=False, cfg=self.VCFG)
         cur = CuratorOutput(correct=False, reasoning_sound=False, verdict_source="self",
@@ -1753,10 +1753,10 @@ class TestOverridingAnAbsentSignal:
                             attribution={"used_positive": [], "used_negative": [e.id],
                                          "unused_irrelevant": [], "unused_redundant": []},
                             lesson="l", sufficient=0, proposed_entries=[])
-        h, x = apply_attribution(book, cur, sig, self.VCFG, "q0", 0)[e.id]
+        h, x = apply_attribution(memory, cur, sig, self.VCFG, "q0", 0)[e.id]
         # v2: 0.6 capped confidence x gain 1.0. (an earlier version priced this at 0.6 gain -> 0.36.)
         assert h == 0.0 and x == pytest.approx(0.6)
-        assert book.entries[e.id].meta.reliability < 0.5
+        assert memory.entries[e.id].meta.reliability < 0.5
         assert sig.source == "exec" and sig.gains_source == "judge"
 
 
@@ -1768,8 +1768,8 @@ class TestScoreTermsAreBothInRange:
     improved the entry. `sim_threshold: -1.0`, the natural way to disable the floor, would
     have silently inverted the domain filter."""
 
-    def _retriever(self, book, threshold):
-        return Retriever(book, {"top_k": 3, "sim_threshold": threshold, "alpha": 0.7,
+    def _retriever(self, memory, threshold):
+        return Retriever(memory, {"top_k": 3, "sim_threshold": threshold, "alpha": 0.7,
                                 "domain_filter": "soft", "domain_penalty": 0.25,
                                 "domain_partial_credit": 0.6, "mmr_lambda": 0.7})
 
@@ -1779,16 +1779,16 @@ class TestScoreTermsAreBothInRange:
              "tags": ["strategy.casework"], "retrieval_query": "modular casework",
              "tool_expected": False}, VocabViolations())
 
-    def test_a_negative_cosine_never_produces_a_negative_sim_term(self, book):
-        book.create(make_proposal("Chirality of stereocenters", ["a", "b"],
+    def test_a_negative_cosine_never_produces_a_negative_sim_term(self, memory):
+        memory.create(make_proposal("Chirality of stereocenters", ["a", "b"],
                                   domain="chemistry"), "q0", 0)
-        refs = self._retriever(book, -1.0).retrieve(self._plan(), 0)
+        refs = self._retriever(memory, -1.0).retrieve(self._plan(), 0)
         for r in refs:
             # raw_sim may be negative; the mixed score must not be dragged below the
             # reliability floor of (1-alpha)*0.5 by it.
             assert r.score >= (1 - 0.7) * 0.5 - 1e-9
 
-    def test_the_domain_penalty_can_only_reduce_the_score(self, book):
+    def test_the_domain_penalty_can_only_reduce_the_score(self, memory):
         """The bug, stated as an invariant: penalising a mismatch must never help."""
         for raw, aff in ((0.8, 1.0), (0.8, 0.0), (-0.5, 1.0), (-0.5, 0.0)):
             clamped = max(0.0, raw)
@@ -1814,7 +1814,7 @@ class TestUpdateGateMatchesWhatTheLossNeeds:
     def _trainer(self, **over):
         cfg = {"enabled": True, "k_upd": 1, "min_pairs": 1}
         cfg.update(over)
-        return CCQSTrainer(DualEncoder(HashingEncoder(dim=64)), cfg)
+        return CCMETrainer(DualEncoder(HashingEncoder(dim=64)), cfg)
 
     VIEWS = {"a": "casework | domain: math.number_theory",
              "b": "chirality | domain: chemistry",
@@ -1867,7 +1867,7 @@ class TestUpdateGateMatchesWhatTheLossNeeds:
         cfg = yaml.safe_load(
             (Path(__file__).resolve().parent.parent /
              "configs" / "lere.yaml").read_text(encoding="utf-8"))
-        assert cfg["ccqs"]["min_pairs"] >= 4
+        assert cfg["ccme"]["min_pairs"] >= 4
 
 
 class TestGpqaLoader:
@@ -1897,7 +1897,7 @@ class TestGpqaLoader:
 
     @needs
     def test_options_stay_inline_in_the_question(self):
-        """C2 is shown the question verbatim; if the options were stripped it would be
+        """Solver is shown the question verbatim; if the options were stripped it would be
         answering a multiple-choice item with no choices."""
         for it in load_gpqa_diamond()[:20]:
             assert "Options:" in it.question
@@ -1923,8 +1923,8 @@ class TestThresholdSentinel:
         assert parse_threshold(0) == 0.0          # a real zero, not the sentinel
         assert parse_threshold("0.45") == 0.45
 
-    def test_no_floor_admits_a_negative_cosine(self, book):
-        book.create(make_proposal("Chirality of stereocenters", ["a", "b"],
+    def test_no_floor_admits_a_negative_cosine(self, memory):
+        memory.create(make_proposal("Chirality of stereocenters", ["a", "b"],
                                   domain="chemistry"), "q0", 0)
         plan = PlannerOutput.parse(
             {"semantic_context": "modular casework", "domain": "math.number_theory",
@@ -1932,20 +1932,20 @@ class TestThresholdSentinel:
              "tool_expected": False}, VocabViolations())
         cfg = {"top_k": 3, "alpha": 0.7, "domain_filter": "soft", "domain_penalty": 0.25,
                "domain_partial_credit": 0.6, "mmr_lambda": 0.7}
-        assert Retriever(book, {**cfg, "sim_threshold": 0.6}).retrieve(plan, 0) == []
-        no_floor = Retriever(book, {**cfg, "sim_threshold": False}).retrieve(plan, 0)
+        assert Retriever(memory, {**cfg, "sim_threshold": 0.6}).retrieve(plan, 0) == []
+        no_floor = Retriever(memory, {**cfg, "sim_threshold": False}).retrieve(plan, 0)
         assert len(no_floor) == 1
         assert no_floor[0].score >= 0.0            # the clamp still holds
 
-    def test_tracing_retriever_agrees_with_the_real_one(self, book):
-        book.create(make_proposal("Modular casework", ["a", "b"]), "q0", 0)
+    def test_tracing_retriever_agrees_with_the_real_one(self, memory):
+        memory.create(make_proposal("Modular casework", ["a", "b"]), "q0", 0)
         plan = PlannerOutput.parse(
             {"semantic_context": "modular casework", "domain": "math.number_theory",
              "tags": ["strategy.casework"], "retrieval_query": "modular casework",
              "tool_expected": False}, VocabViolations())
         cfg = {"top_k": 3, "sim_threshold": False, "alpha": 0.7, "domain_filter": "soft",
                "domain_penalty": 0.25, "domain_partial_credit": 0.6, "mmr_lambda": 0.7}
-        r = TracingRetriever(book, cfg, JsonlWriter("/dev/null"))
+        r = TracingRetriever(memory, cfg, JsonlWriter("/dev/null"))
         sel = r.retrieve(plan, 0)
         assert r.last["sim_threshold"] is None
         assert all(c["passed_floor"] for c in r.last["candidates"])
@@ -1955,7 +1955,7 @@ class TestThresholdSentinel:
 
 class TestSympyIsAvailable:
     def test_the_probe_reports_it_and_it_runs(self):
-        """C2's prompt advertises exactly what `probe_modules` finds, so this is the only
+        """Solver's prompt advertises exactly what `probe_modules` finds, so this is the only
         thing standing between a `from sympy import ...` and a wasted turn."""
         cfg = ToolConfig.from_cfg({"enabled": True, "timeout_s": 30,
                                    "max_output_chars": 4000, "memory_mb": 2048})
@@ -2023,46 +2023,46 @@ class TestAlternativePromptSet:
     def _make_set(self, tmp_path, marker="SENTINEL RULE"):
         d = tmp_path / "prompts_alt"
         d.mkdir()
-        for name in ("c1_planner.md", "c2_solver.md", "c3_curator.md", "taxonomy.md"):
+        for name in ("planner.md", "solver.md", "curator.md", "taxonomy.md"):
             text = load_prompt(name)
-            if name == "c2_solver.md":
+            if name == "solver.md":
                 text += "\n\n" + marker + "\n"
             (d / name).write_text(text, encoding="utf-8")
         return d
 
     def test_default_is_the_shipped_set(self):
-        assert load_prompt("c2_solver.md") == load_prompt("c2_solver.md", None)
-        assert "# C2 — Problem solver" in load_prompt("c2_solver.md")
+        assert load_prompt("solver.md") == load_prompt("solver.md", None)
+        assert "# Solver — Problem solver" in load_prompt("solver.md")
 
     def test_an_absolute_dir_selects_that_set(self, tmp_path):
         d = self._make_set(tmp_path)
-        alt = load_prompt("c2_solver.md", d)
-        assert alt != load_prompt("c2_solver.md")
+        alt = load_prompt("solver.md", d)
+        assert alt != load_prompt("solver.md")
         assert "SENTINEL RULE" in alt
 
     def test_a_relative_dir_resolves_against_the_repo_root(self):
-        assert load_prompt("c2_solver.md", "prompts") == load_prompt("c2_solver.md")
+        assert load_prompt("solver.md", "prompts") == load_prompt("solver.md")
 
     def test_a_missing_prompt_raises_rather_than_rendering_empty(self):
         """`render` fills unknown slots with empty string, so a silently missing template
         would produce a blank prompt and a run of meaningless items."""
         with pytest.raises(FileNotFoundError):
-            load_prompt("c2_solver.md", "prompts_does_not_exist")
+            load_prompt("solver.md", "prompts_does_not_exist")
 
-    def test_pipeline_honours_the_config(self, book, tmp_path):
+    def test_pipeline_honours_the_config(self, memory, tmp_path):
         d = self._make_set(tmp_path)
         cfg = dict(CFG)
         cfg["prompts"] = {"dir": str(d)}
-        pipe = Pipeline(book, EchoLLM(), cfg)
+        pipe = Pipeline(memory, EchoLLM(), cfg)
         assert pipe.prompt_dir == str(d)
-        assert "SENTINEL RULE" in pipe.p_c2
-        assert Pipeline(book, EchoLLM(), CFG).prompt_dir is None
+        assert "SENTINEL RULE" in pipe.p_solver
+        assert Pipeline(memory, EchoLLM(), CFG).prompt_dir is None
 
     def test_a_revised_set_must_keep_every_slot_the_pipeline_fills(self, tmp_path):
         """A revision that dropped a slot would render it as empty text and silently lose,
         say, the retrieved references or the closed vocabulary."""
         d = self._make_set(tmp_path)
-        for name in ("c1_planner.md", "c2_solver.md", "c3_curator.md"):
+        for name in ("planner.md", "solver.md", "curator.md"):
             base = set(re.findall(r"\{\{([a-z_]+)\}\}", load_prompt(name)))
             alt = set(re.findall(r"\{\{([a-z_]+)\}\}", load_prompt(name, d)))
             assert base == alt, (name, base ^ alt)

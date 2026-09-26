@@ -71,7 +71,7 @@ def load_aime(path: str | Path, *, dataset: str | None = None, limit: int | None
     The worked `Solution` that AIME_2024's metadata carries is dropped here and never
     reaches `Item`. It is the answer with its derivation attached: putting it in `meta`
     would leave a leak one careless `str(item.meta)` away, and `lere/guard.py` protects
-    the book from the *question*, not from us.
+    the memory from the *question*, not from us.
 
     `offset`/`limit` slice before anything else, so "the first 10" means the first 10 rows
     of the file and stays reproducible. With `on_bad_gold="skip"` that ordering means the
@@ -155,7 +155,7 @@ def load_gpqa(path: str | Path, *, dataset: str | None = None,
     (`"(C)"`).
 
     The options stay embedded in the question text rather than being parsed out: that is
-    how the source stores them, C2's prompt asks for the letter alone, and `answers.py`
+    how the source stores them, Solver's prompt asks for the letter alone, and `answers.py`
     already accepts `(C)` and `C` interchangeably. Splitting them here would add a second
     parser with nothing to gain.
 

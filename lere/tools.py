@@ -1,14 +1,14 @@
 """Code execution for the solver's tool calls.
 
-C2 may write a program and reason from what it actually printed. Before this module
-existed, C2's prompt asked it to "reason from its result" and emit `coding_result` -- with
+Solver may write a program and reason from what it actually printed. Before this module
+existed, Solver's prompt asked it to "reason from its result" and emit `coding_result` -- with
 nothing running the code. The model invented its own program's output, and that invention
-was then shown to C3 as though it were execution evidence. Every number downstream of that
+was then shown to Curator as though it were execution evidence. Every number downstream of that
 was a hallucination wearing the costume of a measurement.
 
 Two things this module is, and one it is not:
 
-  * It is the **reasoning-time** executor. The result goes back into C2's context and C2
+  * It is the **reasoning-time** executor. The result goes back into Solver's context and Solver
     continues from it. That is different from `verify.signal_from_exec`, which runs
     *after* an answer exists in order to check it. Both exist; they are not the same tool
     and must not be collapsed.
@@ -64,7 +64,7 @@ class ToolResult:
     repeated: bool = False   # this program had already been run this item; not re-executed
 
     def render(self) -> str:
-        """How the result is shown back to C2. Failures are shown, never swallowed.
+        """How the result is shown back to Solver. Failures are shown, never swallowed.
 
         A traceback is the most useful thing a solver can receive -- it is how a human
         debugs, and hiding it behind "execution failed" throws away the whole benefit of
@@ -173,7 +173,7 @@ def static_check(code: str, cfg: ToolConfig) -> str:
     """Return an error tag if the code must not run, or "" to allow it.
 
     Runs before the subprocess so a refusal costs nothing and, more usefully, so the
-    reason can be handed back to C2 as feedback it can act on.
+    reason can be handed back to Solver as feedback it can act on.
     """
     try:
         tree = ast.parse(code)
@@ -278,7 +278,7 @@ class ToolTranscript:
 
     Held separately from `SolverOutput` because it is evidence about the run rather than
     something the model said: `SolverOutput.coding_result` is overwritten from here, so a
-    model that misreports what its own program printed cannot mislead C3.
+    model that misreports what its own program printed cannot mislead Curator.
     """
 
     results: list[ToolResult] = field(default_factory=list)
@@ -352,7 +352,7 @@ class ToolTranscript:
         return None
 
     def render(self) -> str:
-        """The transcript as C2 sees it on its next turn."""
+        """The transcript as Solver sees it on its next turn."""
         if not self.results:
             return ""
         blocks = []

@@ -11,7 +11,7 @@ an image flavour, and nothing else. Adding a fourth model is a config entry.
 
 What this deliberately does NOT do:
 
-* **No native tool calling.** The C2 tool loop is prompt-side (`pipeline.solve`): the
+* **No native tool calling.** The Solver tool loop is prompt-side (`pipeline.solve`): the
   transcript is rendered into the next prompt and `complete_json` is called again. Native
   function calling differs per vendor and is exactly what would force this file to grow a
   branch per provider.
@@ -37,7 +37,7 @@ from .llm import extract_json
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-COMPONENTS = ("c1", "c2", "c3")
+COMPONENTS = ("planner", "solver", "curator")
 
 
 # --------------------------------------------------------------------------- errors
@@ -209,7 +209,7 @@ class UsageLedger:
     """Tokens and dollars per component, accumulated as calls happen.
 
     Keyed by component because that is the unit the ablation is stated in: a small planner
-    with a large solver is only interesting if the bill can be split C1/C2/C3.
+    with a large solver is only interesting if the bill can be split Planner/Solver/Curator.
     """
 
     def __init__(self) -> None:
@@ -387,7 +387,7 @@ def image_data_uri(data: bytes) -> str:
 
 @dataclass
 class ComponentSpec:
-    """Resolved per-component settings. `component` is the routing key, so C1/C2/C3 can
+    """Resolved per-component settings. `component` is the routing key, so Planner/Solver/Curator can
     sit on different models -- a small planner with a large solver, which the pipeline
     already routes."""
     model: str
@@ -551,11 +551,11 @@ class ProviderLLM:
         vcfg = cfg.get("verification") or {}
         samples = int(vcfg.get("consistency_samples", 5))
         if vcfg.get("source") == "consistency" and samples > 1:
-            if self.specs["c2"].temperature <= 0.0:
+            if self.specs["solver"].temperature <= 0.0:
                 raise ProviderError(
                     "verification.source is 'consistency' with consistency_samples=%d, "
-                    "but the C2 temperature is 0: every sample would be identical and "
-                    "the majority vote meaningless. Set llm.components.c2.temperature "
+                    "but the Solver temperature is 0: every sample would be identical and "
+                    "the majority vote meaningless. Set llm.components.solver.temperature "
                     "above 0." % samples)
 
     def __repr__(self) -> str:                       # never repr the key

@@ -1,4 +1,4 @@
-# C2 — Problem solver
+# Solver — Problem solver
 
 ## Persona
 

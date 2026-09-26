@@ -62,7 +62,7 @@ def main() -> int:
         if not (run / "steps.jsonl").is_file() or not snap.is_file():
             continue
         cfg = yaml.safe_load(snap.read_text())
-        if not cfg["ccqs"]["enabled"] or not cfg["tools"]["enabled"] or \
+        if not (cfg.get("ccme") or cfg.get("ccqs"))["enabled"] or not cfg["tools"]["enabled"] or \
                 (cfg.get("run") or {}).get("no_planner"):
             continue                                   # ablation arms are not part of the sweep
         stream, vec = correctness(run)

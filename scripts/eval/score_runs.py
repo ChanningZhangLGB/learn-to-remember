@@ -71,7 +71,7 @@ def score_run(run: Path) -> dict:
         "accuracy_base": 100.0 * base / n_run if n_run else float("nan"),
         "cost_usd": usage.get("cost_usd"), "runtime_min": sum(lat) / 60.0,
         "llm_calls_per_item": summ.get("llm_calls_per_item"),
-        "ccme_updates": (summ.get("ccqs") or {}).get("updates"),
+        "ccme_updates": (summ.get("ccme") or summ.get("ccqs") or {}).get("updates"),
     }
 
 
