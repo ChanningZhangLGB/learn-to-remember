@@ -1,7 +1,7 @@
 # Learn to Remember (LeRe)
 
 Code for *Learn to Remember: Geometric Memory for Inference-Time Self-Improvement in Language
-Models* (under review at ICLR 2027).
+Models*.
 
 LeRe adapts a frozen LLM at inference time without ground-truth labels or weight updates. A
 **Planner** turns each query into a structured retrieval key; **CCME**, two linear heads on a
@@ -13,7 +13,7 @@ gate (Guard, Consolidate, Maintain) filters into the memory bank.
 ## Repository layout
 
 ```
-learn-to-remember-AD37/
+learn-to-remember/
 │
 ├── lere/                              # LeRe core (Section 3)
 │   ├── pipeline.py                    # Plan → retrieve → solve → curate loop (Algorithm 1)
