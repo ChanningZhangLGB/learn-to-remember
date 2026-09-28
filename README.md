@@ -60,7 +60,9 @@ learn-to-remember/
 │   │   ├── ccme_geometry.py           # Table 6, Figure 8
 │   │   ├── verification_reliability.py  # Table 7
 │   │   └── k_sweep_significance.py    # Table 8 tests
-│   └── data/fetch_images.py           # Image download + SHA-256 check
+│   └── data/
+│       ├── fetch_streams.py           # Rebuild GPQA / HLE text + SHA-256 check
+│       └── fetch_images.py            # Image download + SHA-256 check
 │
 ├── tests/                             # Unit tests (no API access)
 ├── API_key.txt.example                # API-key template (copy → API_key.txt)
@@ -72,13 +74,14 @@ learn-to-remember/
 ```bash
 pip install -r requirements.txt                 # tested on Python 3.8
 python -m pytest tests/ -q                      # no API access needed
+python scripts/data/fetch_streams.py            # GPQA-Diamond and HLE question text
 python scripts/data/fetch_images.py             # images for MathVista, MMMU-Pro, HLE
 ```
 
 Set `OPENAI_API_KEY` and/or `GEMINI_API_KEY` (or copy `API_key.txt.example` to `API_key.txt`).
-HLE is gated on Hugging Face: run `huggingface-cli login` before fetching its images. The
-twelve evaluation streams are in `data/subsets/`, in the order all methods processed them
-(see `data/README.md`).
+HLE is gated on Hugging Face: run `huggingface-cli login` before fetching its text and
+images. The twelve evaluation streams are in `data/subsets/`, in the order all methods
+processed them (see `data/README.md`).
 
 ## Usage
 

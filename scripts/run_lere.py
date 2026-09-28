@@ -79,7 +79,11 @@ def apply_set(cfg: dict, assignment: str) -> None:
 
 def resolve_items(stream: str) -> Path:
     if stream in STREAMS:
-        return REPO_ROOT / "data" / "subsets" / (STREAMS[stream] + ".jsonl")
+        path = REPO_ROOT / "data" / "subsets" / (STREAMS[stream] + ".jsonl")
+        if not path.is_file() and path.with_suffix(".ids.json").is_file():
+            raise SystemExit("%s is not redistributed; run scripts/data/fetch_streams.py first"
+                             % path.name)
+        return path
     p = Path(stream)
     if p.is_file():
         return p

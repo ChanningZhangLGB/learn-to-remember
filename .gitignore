@@ -4,3 +4,5 @@ data/subsets/*_images/
 __pycache__/
 *.pyc
 .pytest_cache/
+data/subsets/gpqa_diamond_dcorder198.jsonl
+data/subsets/hle_dcorder250.jsonl

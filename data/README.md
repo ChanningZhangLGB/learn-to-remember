@@ -6,6 +6,14 @@ files: one item per line, in the exact order every method processed them. Each l
 `n_options`, `dataset`, `meta` (source ids and indices) and, for image items, `image_file`.
 `configs/streams.yaml` maps the stream names used by the scripts to these files.
 
+GPQA-Diamond and HLE-Exact are the exception: both benchmarks ask that their questions not be
+republished in plain text, so only `<stream>.ids.json` is committed (ids, order, metadata and
+a SHA-256 of each question and gold answer). Rebuild the two JSONL files before running them:
+
+```bash
+python scripts/data/fetch_streams.py   # byte-identical to the paper's copies, hash-checked
+```
+
 | Stream | File | Items | Answer type |
 | --- | --- | ---: | --- |
 | AIME 2024 | `aime_2024_dcorder30.jsonl` | 30 | integer |
@@ -53,7 +61,8 @@ python scripts/data/fetch_images.py --verify   # SHA-256 check against image_sha
 
 The bytes are written unchanged to `subsets/<stream>_images/`, and the check confirms they
 are identical to the images used in the paper. HLE (`cais/hle`) is gated: accept its terms on
-Hugging Face and run `huggingface-cli login` first. Text-only streams need no download.
+Hugging Face and run `huggingface-cli login` first. Run `fetch_streams.py` before
+`fetch_images.py`, which reads the HLE stream file. The other text-only streams need no download.
 
 Please follow the license of each source dataset: AIME (via Hugging Face `HuggingFaceH4/aime_2024`,
 `MathArena/aime_2025`), MATH, GPQA, MMLU-Pro, Humanity's Last Exam, MathVista and MMMU-Pro.

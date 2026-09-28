@@ -1,0 +1,3543 @@
+{
+ "stream": "hle_dcorder250",
+ "source": "cais/hle test split (row = meta.hle_id)",
+ "n": 250,
+ "file_sha256": "e857fb5958b008c3fbd7a05698c6a7eb37ecb0a04184247cf7becc8df5cac547",
+ "note": "Question text and gold answers are not redistributed; run scripts/data/fetch_streams.py.",
+ "items": [
+  {
+   "id": "HLE-66fc2559876b283872e52acc",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 382,
+    "hle_id": "66fc2559876b283872e52acc",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "d2d305c90fb6b4eb87bff866c701245aa1519f18e2d6b941d2b5886fe6da76c8"
+  },
+  {
+   "id": "HLE-6731bf34cb53dd90407d12b5",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1811,
+    "hle_id": "6731bf34cb53dd90407d12b5",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "8ea15a850e65fd07eb43222bf524030f8f148bf2b47b53a86c4a86ce58a1413a"
+  },
+  {
+   "id": "HLE-67241607454d2eee0ceef762",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1388,
+    "hle_id": "67241607454d2eee0ceef762",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "ad18fd497f6d23800b1031e64200c7e00cb91d6b9680acb4b518e3d1d66c29ce"
+  },
+  {
+   "id": "HLE-6715beb7b3287d3dd4db03e6",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 800,
+    "hle_id": "6715beb7b3287d3dd4db03e6",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Law",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "8db1b2879aa68598914a01b2b84d14782ab2143f0da757fcd6ab34e5c3d0a22c"
+  },
+  {
+   "id": "HLE-67390213fc9dc4f5102ad835",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2100,
+    "hle_id": "67390213fc9dc4f5102ad835",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "5a755be862f6051d81610d806e63ff33329da2723b23f5f577e53adbfd37108c"
+  },
+  {
+   "id": "HLE-6724fa4d8a668910353a6c75",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1454,
+    "hle_id": "6724fa4d8a668910353a6c75",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "76c604f3236708095be32b21e01d02332c4517eb0a4c25fda8a8d60d96843c3f"
+  },
+  {
+   "id": "HLE-67241711454d2eee0ceef767",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1390,
+    "hle_id": "67241711454d2eee0ceef767",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Genetics",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "19a760106c09b7d57358b7b3501777b26195dd74f8cf895b19e898eb150f5485"
+  },
+  {
+   "id": "HLE-66eb1706d3b17bc68156e3e3",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 126,
+    "hle_id": "66eb1706d3b17bc68156e3e3",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "History",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "7572f90c2f084f98689413ae2a4761aefa9fbb26b48881188b92ac23d7fa2b09"
+  },
+  {
+   "id": "HLE-671e942d203983a0a37a90b1",
+   "answer_type": "mcq_letter",
+   "n_options": 13,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1038,
+    "hle_id": "671e942d203983a0a37a90b1",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "5c76bffc904d2abfd5d1a34500138aa867bd0a83aa5a34c7f99fc0e4ff6d3804"
+  },
+  {
+   "id": "HLE-67278a07f6750868800d5801",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1622,
+    "hle_id": "67278a07f6750868800d5801",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "e0efd243dc244fb9c3cd8cdafc5a5fd0fd14d1a9cfa3df2df50428ec13a02c23"
+  },
+  {
+   "id": "HLE-6733f23b731fba4902214821",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1850,
+    "hle_id": "6733f23b731fba4902214821",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "cc0fb056709929a0075bd2fec4baa4411473869b03cdadab6e9bbe952d77e4bf"
+  },
+  {
+   "id": "HLE-66e8e1056c0b8ace336996ea",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 37,
+    "hle_id": "66e8e1056c0b8ace336996ea",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Poker",
+    "category": "Other"
+   },
+   "sha256": "b59a8cf28ecec01752cead0ad51942f1322d8926c986d03e8feee18f61184cfa"
+  },
+  {
+   "id": "HLE-6734d0fd45aa0757a21c4ddc",
+   "answer_type": "mcq_letter",
+   "n_options": 11,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1871,
+    "hle_id": "6734d0fd45aa0757a21c4ddc",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Mechanical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "f65f645712457d1584ac4211f986e74857e6fd01c72e1e3380ffdae3b8f8a99b"
+  },
+  {
+   "id": "HLE-6738f23e851b80b033aa8636",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2096,
+    "hle_id": "6738f23e851b80b033aa8636",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "21353e295014d371b5296f07dc475ed3dfce60d3591c0a026df33034ba0a55f5"
+  },
+  {
+   "id": "HLE-66fb75ded83ed7a299fdd136",
+   "answer_type": "mcq_letter",
+   "n_options": 11,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 368,
+    "hle_id": "66fb75ded83ed7a299fdd136",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Classics",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "8a88f47f03486dc8eb057201adaaf3cea9751f5d6649a08af8f8a9d5e4279262"
+  },
+  {
+   "id": "HLE-671f083dc8da11076ce9960e",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1055,
+    "hle_id": "671f083dc8da11076ce9960e",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Ecology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "9bbef93bbf97f69110fd95ee243b9b2080bb01cc021f9a970b27f5c8f065ea32"
+  },
+  {
+   "id": "HLE-6736d6acc88ca641f5608321",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1954,
+    "hle_id": "6736d6acc88ca641f5608321",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Linguistics",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "efd296ba41171cfd21ad7b58ddb0ba06b8598637ddf617e9d059d33f459757db"
+  },
+  {
+   "id": "HLE-66f5c96b4ae309d465eeca47",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 308,
+    "hle_id": "66f5c96b4ae309d465eeca47",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "b595e8ec48888795882b68cd22cd9886829ccdeed9b76bfdb43165c302386a26"
+  },
+  {
+   "id": "HLE-67089c013b511a575fc306de",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 614,
+    "hle_id": "67089c013b511a575fc306de",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "30f56fc258c5554fe369bb361bb715df2ffd847e308957daafb2576eaff7cc0e"
+  },
+  {
+   "id": "HLE-673586ad6ea2c89a57e3bfb7",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1894,
+    "hle_id": "673586ad6ea2c89a57e3bfb7",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "729a48169f6358cb48d15fa763a14d997e40bf8aec981e4f12da8c460ddf2759"
+  },
+  {
+   "id": "HLE-66edf49c46d28f04618d6498",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 182,
+    "hle_id": "66edf49c46d28f04618d6498",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "9d762e0257a731de31df85da0770483001e8617840f0ad49469199d1f9d349a6"
+  },
+  {
+   "id": "HLE-671f2b0ee38f776acdad8aa1",
+   "answer_type": "mcq_letter",
+   "n_options": 7,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1073,
+    "hle_id": "671f2b0ee38f776acdad8aa1",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Ecology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "5464b9d51105f32f660b4cef25e11b6de5c5ef886c990cf1178d73232c542402"
+  },
+  {
+   "id": "HLE-66fa6641c4f1bf6c2036b745",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 355,
+    "hle_id": "66fa6641c4f1bf6c2036b745",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "95b22eb69f301a5fe430ce433570483debde26a57774c9b26d9c714e43279af6"
+  },
+  {
+   "id": "HLE-67391a30af74773130b63bb2",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2106,
+    "hle_id": "67391a30af74773130b63bb2",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "9afa10510dd5676c038a7528db4d9ed4b56148c9dde4d99ee823a8da74b5b5f1"
+  },
+  {
+   "id": "HLE-6725c3719aac82ce9cf99f23",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1553,
+    "hle_id": "6725c3719aac82ce9cf99f23",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Orthopedics",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "4d2dcbe27d2cc382bd742cf3f11d7c505fa340e6406d307cbb6d5ee83114abcc"
+  },
+  {
+   "id": "HLE-67205943fdd1c7b924f99713",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1161,
+    "hle_id": "67205943fdd1c7b924f99713",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "0b43f7becc691310d14c41157596af0158062f4c2d3e649170b33faf723d27b6"
+  },
+  {
+   "id": "HLE-6720a9feec461e4c6a4e2c3a",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1179,
+    "hle_id": "6720a9feec461e4c6a4e2c3a",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "3526e3802190559d9cffbd9a3d43fe6de8e54a2ca3c83e5c6caf5095b966d784"
+  },
+  {
+   "id": "HLE-673b631505be2302d4445ece",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2189,
+    "hle_id": "673b631505be2302d4445ece",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "8d1900741f67a95cb0ad793784a27bc0dec5eeab617715bfbc466ea0a6aedc94"
+  },
+  {
+   "id": "HLE-66ea3ba5444b8f31ef575799",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 93,
+    "hle_id": "66ea3ba5444b8f31ef575799",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Applied Mathematics",
+    "category": "Math"
+   },
+   "sha256": "06b99533abe84947f54d3130b5b5dbc5850f34739352e4cd9dfae5349902f7a5"
+  },
+  {
+   "id": "HLE-6736e54a4c96e49df1036fc6",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1964,
+    "hle_id": "6736e54a4c96e49df1036fc6",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "4923a4d6d29573b3ae95fd0b8cb1f47a923d63d03c15f0b9d415200ec29bbe67"
+  },
+  {
+   "id": "HLE-671f07b1d0f22fd6e50482e7",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1054,
+    "hle_id": "671f07b1d0f22fd6e50482e7",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Electrical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "fafd731303c58a3373e33d6713be31f16ea19d814836e45428a30e7e563b4b8e"
+  },
+  {
+   "id": "HLE-66fe16f4762ab58b937863b8",
+   "answer_type": "mcq_letter",
+   "n_options": 14,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 461,
+    "hle_id": "66fe16f4762ab58b937863b8",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "883e0fcfefd06f64ef2ae0e1020ed4bb9688ec45297d212be94f2dc947d60c4d"
+  },
+  {
+   "id": "HLE-66f1d0828fa08a4717238167",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 252,
+    "hle_id": "66f1d0828fa08a4717238167",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "390059c4e29ca8bc77cd2fe5f690e1d1268d5a049964c019898d29f9d12a3d29"
+  },
+  {
+   "id": "HLE-6730f3c006cd33fe46ca2dfe",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1800,
+    "hle_id": "6730f3c006cd33fe46ca2dfe",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "ef50b6ffd4a9846bc1b17dc07356eaafee292db95f2eb34f4f8dc335a2f8e619"
+  },
+  {
+   "id": "HLE-66fea0c4cb66b0e85c55ee52",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 472,
+    "hle_id": "66fea0c4cb66b0e85c55ee52",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "c660165ba247f10464bc8e83fa66da7e59d93d27b484b72fc5dd79858f526c77"
+  },
+  {
+   "id": "HLE-670663d687c53b9e6fa1dc8f",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 589,
+    "hle_id": "670663d687c53b9e6fa1dc8f",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "04cf3a8eb4dcaadbd9730628a21b96cdf900d73f0fe31b025eb658918ae2a76b"
+  },
+  {
+   "id": "HLE-66f25c95da5074d064015c54",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 260,
+    "hle_id": "66f25c95da5074d064015c54",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "c1538a51bbc1aed3465e57d04157db332bf41b0c0d35f30dd937080669840445"
+  },
+  {
+   "id": "HLE-672f4434e9c13daba078d693",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1764,
+    "hle_id": "672f4434e9c13daba078d693",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Astronomy",
+    "category": "Physics"
+   },
+   "sha256": "a75f2565cb6ad6311a0dc7d97ea648d23e61f0a3a2de37e15297484f76947303"
+  },
+  {
+   "id": "HLE-66e8b578d0c1f7390bad120c",
+   "answer_type": "mcq_letter",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 27,
+    "hle_id": "66e8b578d0c1f7390bad120c",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Artificial Intelligence",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "73d4f0c8e5255d5a8202f5934a41802109c3cd49bc2385551a4d0acd1bf6af8b"
+  },
+  {
+   "id": "HLE-673b6aa505be2302d4445ed4",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2190,
+    "hle_id": "673b6aa505be2302d4445ed4",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "8dcff5d640d2a557e486d1e2c74b658d2321f12fd44829b349b0ebe1b5f38921"
+  },
+  {
+   "id": "HLE-6701de16d9e4cd1aa812414b",
+   "answer_type": "mcq_letter",
+   "n_options": 19,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 539,
+    "hle_id": "6701de16d9e4cd1aa812414b",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Microbiology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "88523ec2949f1672d4032829b6a94fb9a91ae9370e169a72701b1e4a76c0ebf0"
+  },
+  {
+   "id": "HLE-67666a593e38774fc651f9f3",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2333,
+    "hle_id": "67666a593e38774fc651f9f3",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Medicine",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "66a153b6a8a43f7352f4cd465f0f9336183efdf0bfa6a9fb59867db3711fcafc"
+  },
+  {
+   "id": "HLE-6707791ed9cad1c3863ce734",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 598,
+    "hle_id": "6707791ed9cad1c3863ce734",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-6707791ed9cad1c3863ce734.jpg",
+   "sha256": "041329aa2fe299674b78ba917fabd2dc8e8d7b3f2ac327964a700e4b7adc56b9"
+  },
+  {
+   "id": "HLE-6722e2aa59f0f83e64e054ed",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1309,
+    "hle_id": "6722e2aa59f0f83e64e054ed",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Applied Mathematics",
+    "category": "Math"
+   },
+   "sha256": "27ddfda7a18237438fa67e32619a26e3d9cefd134773ce1c1c7aa4dc483ac4cf"
+  },
+  {
+   "id": "HLE-673602ff4859597c5ce341a2",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1909,
+    "hle_id": "673602ff4859597c5ce341a2",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Image Processing",
+    "category": "Computer Science/AI"
+   },
+   "image_file": "HLE-673602ff4859597c5ce341a2.png",
+   "sha256": "25564168d2ba215b54df7146a6d912b9d50a2958c82ecf404a1b9ec59c29f251"
+  },
+  {
+   "id": "HLE-67435ecfa59a37c4a0f5d579",
+   "answer_type": "mcq_letter",
+   "n_options": 7,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2250,
+    "hle_id": "67435ecfa59a37c4a0f5d579",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "5ed4cac517a32bdfb12cd2bb9a02929f6fad2da401799f849573c91a578bd463"
+  },
+  {
+   "id": "HLE-6736e1afac05181e46df9caf",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1963,
+    "hle_id": "6736e1afac05181e46df9caf",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "4e00cadfae4a1ff54d9dcc2ef6874471dba58059e35aa2836d939823f2d02aff"
+  },
+  {
+   "id": "HLE-66f864c8f7c10f2d2ba396df",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 337,
+    "hle_id": "66f864c8f7c10f2d2ba396df",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Robotics",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "6188ac601e440d6672ae5d2ff267b41156f2b3ff7d3b26fe6fa5d94dd6124dae"
+  },
+  {
+   "id": "HLE-6710210bc47b9b50a333dba8",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 721,
+    "hle_id": "6710210bc47b9b50a333dba8",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "692aa152c3b65c756dce39406b8b5326c032dcd4c8d616b17ff271095fac03b7"
+  },
+  {
+   "id": "HLE-66f9a8a4e613d5c62b6c0d22",
+   "answer_type": "mcq_letter",
+   "n_options": 14,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 350,
+    "hle_id": "66f9a8a4e613d5c62b6c0d22",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Ecology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "70346faac768b4df96274cd9efe5eab52758d1b29700c6fc1f61624dda2cd98d"
+  },
+  {
+   "id": "HLE-66e883265ab37f0a7da089be",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 14,
+    "hle_id": "66e883265ab37f0a7da089be",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chess",
+    "category": "Other"
+   },
+   "sha256": "2f0a48c54b5dcf5f1dce8312f3149fef87d972b5bfea2a6048e008d008c36b56"
+  },
+  {
+   "id": "HLE-673e9bb58e7609d034b4ec54",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2222,
+    "hle_id": "673e9bb58e7609d034b4ec54",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Applied Mathematics",
+    "category": "Math"
+   },
+   "sha256": "7cc6f59a6c6cfbc95a6e3070b6c9ef92703602967c8911541e7917acc6424e87"
+  },
+  {
+   "id": "HLE-6700b9b6d9849868aa3fb1f9",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 519,
+    "hle_id": "6700b9b6d9849868aa3fb1f9",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "947f9093c4cd0965efbe24cff6a39cd746114edd756ac7a82baa74aa1bafc4e9"
+  },
+  {
+   "id": "HLE-673c03d7048156c9e9c8cac6",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2200,
+    "hle_id": "673c03d7048156c9e9c8cac6",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "ce2c28193a3f73c2385bcb27b7695b693ae821d614c0130f069fe52b23565881"
+  },
+  {
+   "id": "HLE-66ecddac93c4bf17acb6c106",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 154,
+    "hle_id": "66ecddac93c4bf17acb6c106",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "681ad52a03cf92843c899ca85e27eb344f99a4e42d709e0a24b568c918a034d7"
+  },
+  {
+   "id": "HLE-6704465caf0a436d92c65160",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 564,
+    "hle_id": "6704465caf0a436d92c65160",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "bb1b6b93ea6f93fa393eb629d936235816c2760737beb2f21ea2d5ac1ef66579"
+  },
+  {
+   "id": "HLE-670e5c2720bb63b6da63b879",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 677,
+    "hle_id": "670e5c2720bb63b6da63b879",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Biophysics",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "83659b11c2c1aaec318c3a94e83cdfd34b886aa749f1a79c07d71e0cc9ca1216"
+  },
+  {
+   "id": "HLE-671802a3e2dff1f07a1b0508",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 873,
+    "hle_id": "671802a3e2dff1f07a1b0508",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "d02775125acfc89cc189988faa22d30b98e1a80b121b041329dfd1e9b56d6d7d"
+  },
+  {
+   "id": "HLE-673a9c6a414ad0600dc781a2",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2168,
+    "hle_id": "673a9c6a414ad0600dc781a2",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Linguistics",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "132dc96dfaf4617f3ab64673742efdf4e32c9196cebebdb8464eeb2f9f3487af"
+  },
+  {
+   "id": "HLE-66ffcf486c0e5bf5dcf91072",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2461,
+    "hle_id": "66ffcf486c0e5bf5dcf91072",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "4d61f352d32fcd73a566def61236e9cfc8f916c4e0b9c34c1d1335e5ad8612d1"
+  },
+  {
+   "id": "HLE-6736f46694e6cfc37bdae690",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1972,
+    "hle_id": "6736f46694e6cfc37bdae690",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Applied Mathematics",
+    "category": "Math"
+   },
+   "image_file": "HLE-6736f46694e6cfc37bdae690.png",
+   "sha256": "c1e32312cbf964e812df6ed089c36e51393b4a3064408982404eb4a275ca07a5"
+  },
+  {
+   "id": "HLE-671f4997a2bc63fb20c63134",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1090,
+    "hle_id": "671f4997a2bc63fb20c63134",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "1fe87d7562b8fc973603040a7cd631cc6759f3701b161d8a888efc26e504320c"
+  },
+  {
+   "id": "HLE-67004f7644420b59a377790f",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2462,
+    "hle_id": "67004f7644420b59a377790f",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Quantum Physics",
+    "category": "Physics"
+   },
+   "image_file": "HLE-67004f7644420b59a377790f.png",
+   "sha256": "2beeee894f0ea1d01aed69488f99d101e7c41ba16194ddcbb71c48d968700809"
+  },
+  {
+   "id": "HLE-6724df023d152e09b5c5d6c1",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1438,
+    "hle_id": "6724df023d152e09b5c5d6c1",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "ec417b0d05dca8158a13312b916ca7e9f722ff3269e83d8a846a31e1aa265a22"
+  },
+  {
+   "id": "HLE-672656a3fd560b1526278952",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1599,
+    "hle_id": "672656a3fd560b1526278952",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "cead856d7ccdbcff89505bf09f3e03663e74761563d1c14984601e6345444f98"
+  },
+  {
+   "id": "HLE-6737b422d3949406f1ed580b",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2046,
+    "hle_id": "6737b422d3949406f1ed580b",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "History",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "01687bca86bc1f3776f0725dea26beeb291668a09ef145cd6c838e375191f0b4"
+  },
+  {
+   "id": "HLE-673a6a6c4c465c371379b670",
+   "answer_type": "mcq_letter",
+   "n_options": 9,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2154,
+    "hle_id": "673a6a6c4c465c371379b670",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Biochemistry",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "0b4732fb316f0c5bdfb5714ed7ae1e500fe7ef79d32d228bd69d679922e6f543"
+  },
+  {
+   "id": "HLE-671922c9897dbe5d706dc802",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 898,
+    "hle_id": "671922c9897dbe5d706dc802",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "e13fc0ed5e3e716c652baaa5270a3c62ec9654172df2ccc775d906f9b1c095ec"
+  },
+  {
+   "id": "HLE-6736ddc7ab70ca0b4ee6a2e6",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1959,
+    "hle_id": "6736ddc7ab70ca0b4ee6a2e6",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "db6e01d9b3db430f4903612f101a6d8b026e10699b7877db274794e5f6d0423d"
+  },
+  {
+   "id": "HLE-66f407a066abc59ffb9a82ae",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 287,
+    "hle_id": "66f407a066abc59ffb9a82ae",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "c06e925a5f90936c9f536ed37adb145aa463ad157d035c4d30f2001d513fb0ea"
+  },
+  {
+   "id": "HLE-66fecc707183fdf40d11cb48",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 480,
+    "hle_id": "66fecc707183fdf40d11cb48",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Molecular Biology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "3b8037c452d942b8a54f5aa41778eb254584a5aee952ee7da59751c544a6fc92"
+  },
+  {
+   "id": "HLE-673d04026d3e62d37824922e",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2213,
+    "hle_id": "673d04026d3e62d37824922e",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "c7381248efd83292271a86affba48e7e00117d99b5a8cb650f44b8a579ff9b27"
+  },
+  {
+   "id": "HLE-66eea759f76fda99cec44de6",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 194,
+    "hle_id": "66eea759f76fda99cec44de6",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "a9ed2f7459265928fd754fd2bb77da4f9d6c6a718af19b9cfe0369cde5b39641"
+  },
+  {
+   "id": "HLE-6736c2e82db9d8cc7cd8e607",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1947,
+    "hle_id": "6736c2e82db9d8cc7cd8e607",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Medicine",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "97a669359b0615fe91342857cc009c2727e9dc1d25feb79d53ffdb5a78e82f16"
+  },
+  {
+   "id": "HLE-6734c9d08b7d570e8e23f646",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1870,
+    "hle_id": "6734c9d08b7d570e8e23f646",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mathematics",
+    "category": "Math"
+   },
+   "sha256": "e11eb8ed4db231b6c35f06b643eaf129bfda437e23e59e9259df22f1f7df6d9c"
+  },
+  {
+   "id": "HLE-679719aeac316f89542b3581",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1940,
+    "hle_id": "679719aeac316f89542b3581",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "History",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "e599849ea7f847d303c7c2da18f421cf4b56679046d63cd64bf45cbab54fb3aa"
+  },
+  {
+   "id": "HLE-671faf8171f6aa7bd1e604cd",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1109,
+    "hle_id": "671faf8171f6aa7bd1e604cd",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Electrical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "064d89a909d531dcf845e6dc90767c8fc8784a147b288a508d08af02eb6364d2"
+  },
+  {
+   "id": "HLE-66e97fd756455f341c7849c3",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 68,
+    "hle_id": "66e97fd756455f341c7849c3",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Linguistics",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "ed9d92c4abc58b36b70f7792f42eb14f1dd269abbd7ef15d7c200468b8dacdbe"
+  },
+  {
+   "id": "HLE-67264a55cae736a4a682949a",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1598,
+    "hle_id": "67264a55cae736a4a682949a",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Public Health",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "dc2ad36bc098bebfb5124a2d5b13f6e0671acb76492457400e7c102ab131087a"
+  },
+  {
+   "id": "HLE-672b687682d2a83f881d7c5a",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1676,
+    "hle_id": "672b687682d2a83f881d7c5a",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "c85f32d3d63d9aba075205d79f67e089e2d85f65faf796da171d5725ec220982"
+  },
+  {
+   "id": "HLE-67261f558ef4acce1da598d0",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1592,
+    "hle_id": "67261f558ef4acce1da598d0",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Applied Mathematics",
+    "category": "Math"
+   },
+   "sha256": "1e08cd21d9109ce06ceced15e90708bfbd876f6b9ab9ac5761ef27d73e188ccf"
+  },
+  {
+   "id": "HLE-672be113f0b152f5e0c9e635",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1686,
+    "hle_id": "672be113f0b152f5e0c9e635",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Path Finding",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "e8afd635ea2bee996f0f2d13d3bf64b0250b78088e78e48d5c4ef4ec43ea5ee9"
+  },
+  {
+   "id": "HLE-670edc9dbddc0cfe673272c8",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 690,
+    "hle_id": "670edc9dbddc0cfe673272c8",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "175535c15aabe375860437ccdadb40e96599c9af53538a27efd3a8b7bfe11ac4"
+  },
+  {
+   "id": "HLE-670e92583011a5b80bfb6c60",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 681,
+    "hle_id": "670e92583011a5b80bfb6c60",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Applied Mathematics",
+    "category": "Math"
+   },
+   "sha256": "2ee6566951f9bb8a1da452ca688d5443bbb965c7160ce11e733087caa6514489"
+  },
+  {
+   "id": "HLE-6724217c9909a95d1bf7aa1c",
+   "answer_type": "mcq_letter",
+   "n_options": 22,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1395,
+    "hle_id": "6724217c9909a95d1bf7aa1c",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Medicine",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "dc8b89d5dd1e9e697b8247dd6fca91976f994538300214495f603a9b5e976e29"
+  },
+  {
+   "id": "HLE-672182f55e4a5b8416a1ccbe",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1236,
+    "hle_id": "672182f55e4a5b8416a1ccbe",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Trivia",
+    "category": "Other"
+   },
+   "sha256": "38221badd86721b86b835e0b88fca84470c90c0c59abc59b83e83a8e7241297f"
+  },
+  {
+   "id": "HLE-6716a8d3571bba1c8889e6ee",
+   "answer_type": "mcq_letter",
+   "n_options": 12,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 822,
+    "hle_id": "6716a8d3571bba1c8889e6ee",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Trivia",
+    "category": "Other"
+   },
+   "image_file": "HLE-6716a8d3571bba1c8889e6ee.png",
+   "sha256": "bf4cf69dcb7996f6d795a53167e70a535eb595b8b711ce96fcf8ab50e426ddf6"
+  },
+  {
+   "id": "HLE-673b4efb373d154ce855b23b",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2186,
+    "hle_id": "673b4efb373d154ce855b23b",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Crystallography",
+    "category": "Physics"
+   },
+   "sha256": "f6f3b5fe22adaa473c3f6225e1ef637c6b5db01fbac73b59d19431cfe3ffe00e"
+  },
+  {
+   "id": "HLE-66ea1dd348eb93c2aef1c735",
+   "answer_type": "mcq_letter",
+   "n_options": 16,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 85,
+    "hle_id": "66ea1dd348eb93c2aef1c735",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Genetics",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "a03a6021cf3817da20d382ad1727dc3776c91fc0dfbfc0620bdbb83682a38d38"
+  },
+  {
+   "id": "HLE-671d97e729e7fde7166e4743",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1009,
+    "hle_id": "671d97e729e7fde7166e4743",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Remote Sensing",
+    "category": "Engineering"
+   },
+   "sha256": "6279b318cf382a6d1d5ae74b81766d6ad2c3f84e9e9808003a4869892a72cef4"
+  },
+  {
+   "id": "HLE-67254a56046774791d0f1a41",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1502,
+    "hle_id": "67254a56046774791d0f1a41",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Medicine",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "bd3748472f735e892514067f5200e7c526f00c96c88bef75b034434329d8655e"
+  },
+  {
+   "id": "HLE-66f6d6bb851e7fd5e8e5e5eb",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 322,
+    "hle_id": "66f6d6bb851e7fd5e8e5e5eb",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "5ef0b429e0a4897399c016965c733ef23b84d75d9c1e7ea84e3bcbf79815de74"
+  },
+  {
+   "id": "HLE-66f760ebf206a49e129c7ed9",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 328,
+    "hle_id": "66f760ebf206a49e129c7ed9",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "ea0213411f994fbdf3014db255cf6635ab841034482f3c77a8c4948df6c6924e"
+  },
+  {
+   "id": "HLE-67211971d9397a0c64dba82a",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1215,
+    "hle_id": "67211971d9397a0c64dba82a",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Electrical Engineering",
+    "category": "Engineering"
+   },
+   "image_file": "HLE-67211971d9397a0c64dba82a.png",
+   "sha256": "6dfa4893a3998db3a3555f83165978cfaed0c270b2fa4f8d84ffca1e5cc10c9f"
+  },
+  {
+   "id": "HLE-670b307567eb710437409184",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 640,
+    "hle_id": "670b307567eb710437409184",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Game Design",
+    "category": "Other"
+   },
+   "sha256": "6ccff09a175401e263fd77dadf756b9de13bfd6386b0ee9f09d0381a340f0c32"
+  },
+  {
+   "id": "HLE-67361730dba36cc0d595f422",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1913,
+    "hle_id": "67361730dba36cc0d595f422",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "f74a76f35d443f0eed8cff2bceb364e888b433cbc930ea32f4bc38f381afbd84"
+  },
+  {
+   "id": "HLE-672c0f1d76fec97ec7555a3a",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1691,
+    "hle_id": "672c0f1d76fec97ec7555a3a",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Paleography",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "7b06df1c4397f055fee8a3f18c2dca20b9339a6fbf6c19ff845c556c99c1bcc0"
+  },
+  {
+   "id": "HLE-672f0ac02ccf8890167533ec",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1762,
+    "hle_id": "672f0ac02ccf8890167533ec",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Anatomy",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "b17927958caf54a2207f4eb8b30b3e350699523361b1dfe8f6be0b905aa4fc5f"
+  },
+  {
+   "id": "HLE-671ee4d26edc2afd69958953",
+   "answer_type": "mcq_letter",
+   "n_options": 16,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1046,
+    "hle_id": "671ee4d26edc2afd69958953",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-671ee4d26edc2afd69958953.png",
+   "sha256": "a066868681e5ea3f8427403b6ecdedb3ea8bc4f605a440db5e30b4529aa97284"
+  },
+  {
+   "id": "HLE-671fee7b3fdf9b50dcb7ca58",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1130,
+    "hle_id": "671fee7b3fdf9b50dcb7ca58",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Electrical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "189348d9817eddf823049fdf3fdc8a216479608bb00a3c3cc168ae0ad35ed7a6"
+  },
+  {
+   "id": "HLE-67233a00f0e8cb183f7c3df3",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1325,
+    "hle_id": "67233a00f0e8cb183f7c3df3",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Musicology",
+    "category": "Other"
+   },
+   "image_file": "HLE-67233a00f0e8cb183f7c3df3.png",
+   "sha256": "09dce33eec1c4ef1161841585f7461eddab2a2ea2e644bcf2ff863ec3a0b7bc3"
+  },
+  {
+   "id": "HLE-66fcfe789608881c6aecde88",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 435,
+    "hle_id": "66fcfe789608881c6aecde88",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "61f54f9ce775282bcdb6d61989a77ceb43aaf4fa2c7a85b53b8c18aaee68759b"
+  },
+  {
+   "id": "HLE-670013827794cc36bc974f27",
+   "answer_type": "mcq_letter",
+   "n_options": 7,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 499,
+    "hle_id": "670013827794cc36bc974f27",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Immunology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "4d0e88f9963348a8d357fc0ecb1ad73cf39d80d2658fe3a9e43cc93472d5c4c1"
+  },
+  {
+   "id": "HLE-671f1f0bb0b665acec70c3aa",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1066,
+    "hle_id": "671f1f0bb0b665acec70c3aa",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "4b88cf3d27e417026b045bcf71938c71304456ad1d7a367d711256c7d93d9929"
+  },
+  {
+   "id": "HLE-6726c7e9d2ad475e400669c7",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1611,
+    "hle_id": "6726c7e9d2ad475e400669c7",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "4a8913bfabc90bc81ebf7300ebed839830fbaf8e589451e257587a5abb2db741"
+  },
+  {
+   "id": "HLE-6711410d39fb87be5f2f165d",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 728,
+    "hle_id": "6711410d39fb87be5f2f165d",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-6711410d39fb87be5f2f165d.jpg",
+   "sha256": "343d15bbaa932b146392d1d6b1853d5ab44b3cfc6afe5bebc441b860e91ea61b"
+  },
+  {
+   "id": "HLE-66f8cff8469c315e2c9ed2f6",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 344,
+    "hle_id": "66f8cff8469c315e2c9ed2f6",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "27815d394edce78de25bd1f15c9630667e95cf5497ba636b51b4cb8f43083ed7"
+  },
+  {
+   "id": "HLE-6725ed2e26992c47ce3a7eb1",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1568,
+    "hle_id": "6725ed2e26992c47ce3a7eb1",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Ballroom Dancing",
+    "category": "Other"
+   },
+   "sha256": "4b02d99c703738ec81a5c2efa7030671a50d85e68ec648b9b460f8b07e3e5989"
+  },
+  {
+   "id": "HLE-67379dd995d9299b8ac8439c",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2043,
+    "hle_id": "67379dd995d9299b8ac8439c",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Genomics",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "6625dda679c956d2b02df5dba12cde83b792c6d4569a30816bb4bcffb30b74fe"
+  },
+  {
+   "id": "HLE-67155ca2675b57d8bbc9144d",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 790,
+    "hle_id": "67155ca2675b57d8bbc9144d",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Biochemistry",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "516504a0f7515de62e619aaad190fe7734136a2b560cd375bf6e97abe55e8ce2"
+  },
+  {
+   "id": "HLE-66ff063787bfb80443d02df6",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 486,
+    "hle_id": "66ff063787bfb80443d02df6",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Immunology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "e62d50216523ca95472ff185daae5a5c0aea190b6784c65dafffde2221882348"
+  },
+  {
+   "id": "HLE-66f88d96e4deeaf4670af95d",
+   "answer_type": "mcq_letter",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 341,
+    "hle_id": "66f88d96e4deeaf4670af95d",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Biology",
+    "category": "Biology/Medicine"
+   },
+   "image_file": "HLE-66f88d96e4deeaf4670af95d.jpg",
+   "sha256": "48133ff8f9499f42e1b66053f4f7db7d4e98f79f28c1f0e6994a6a8394e56937"
+  },
+  {
+   "id": "HLE-67009ad56c339d61ecccb85c",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 511,
+    "hle_id": "67009ad56c339d61ecccb85c",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "57eb7ec950ebffddf49b6c97e25a4646d0d0114aa6a0109c55507a7a37385b14"
+  },
+  {
+   "id": "HLE-66efa01e327e4a95dc760d01",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 218,
+    "hle_id": "66efa01e327e4a95dc760d01",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Ecology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "09540d006921f34ef0e0ab01e83647652c99d21afb14bf9fe5e4c61f6396f99d"
+  },
+  {
+   "id": "HLE-6724a088d917564737255346",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1424,
+    "hle_id": "6724a088d917564737255346",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Microbiology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "0988f05ed37ff30c855ec4792040d570ab4c702b67e25af60810d8b72a0977d1"
+  },
+  {
+   "id": "HLE-671808958b88f01935b5825a",
+   "answer_type": "mcq_letter",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 876,
+    "hle_id": "671808958b88f01935b5825a",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "87fc30da519d13db22bcf7510fd6254ab313d7a47a36319f8c272d67f2f35f20"
+  },
+  {
+   "id": "HLE-672bb2605a3e88050ba2cef8",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1682,
+    "hle_id": "672bb2605a3e88050ba2cef8",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Immunology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "ee796fc3bfafda4199ff4d63d3868c0a791451f613224dc16737299e68ff8ebb"
+  },
+  {
+   "id": "HLE-67378905b73b79a4008926af",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2039,
+    "hle_id": "67378905b73b79a4008926af",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Chess",
+    "category": "Other"
+   },
+   "sha256": "72eaa40ac20d3f9d0acf011e6efbc0b0a50c534ad16c66e7140e7264fa04c691"
+  },
+  {
+   "id": "HLE-671a30c82ca56817dc566f69",
+   "answer_type": "mcq_letter",
+   "n_options": 19,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 917,
+    "hle_id": "671a30c82ca56817dc566f69",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Art",
+    "category": "Other"
+   },
+   "sha256": "d235bbe9261a371dceeb114288ef72a9a75350cc8b21da9dc2cb314446432cbb"
+  },
+  {
+   "id": "HLE-67335820c7d8c66591e6dfc7",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1843,
+    "hle_id": "67335820c7d8c66591e6dfc7",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Biology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "e3958699712710a266861fb82ca2cf0b77bb44b2448d0f5ce0a24be80e93a86a"
+  },
+  {
+   "id": "HLE-67238cd54b5264ad52901059",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1334,
+    "hle_id": "67238cd54b5264ad52901059",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Biology",
+    "category": "Biology/Medicine"
+   },
+   "image_file": "HLE-67238cd54b5264ad52901059.png",
+   "sha256": "3ceb99df5b522fcfc0cbc6b869946b4d0cbd29fc8e80954ede57251bae60b2ee"
+  },
+  {
+   "id": "HLE-670010ff77983eff561814b2",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 498,
+    "hle_id": "670010ff77983eff561814b2",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Computational Biology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "182aa046c7550502c2462e05a03ba6f46163275ba16c71aeb2561236858f0db3"
+  },
+  {
+   "id": "HLE-673186a4d531bb7e168901a3",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1809,
+    "hle_id": "673186a4d531bb7e168901a3",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "6dd83df4d7dae92c738adfb7fb69d8b80574ae24f18b45b243eb039bf82244ba"
+  },
+  {
+   "id": "HLE-66fded1fbc6d46a25c41ee8d",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 460,
+    "hle_id": "66fded1fbc6d46a25c41ee8d",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Medicine",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "7f97e557311d5a5eeb94a6a3ce1cfc7d726ed82bf9c148060ca3aa6bd994d7ce"
+  },
+  {
+   "id": "HLE-6722a52340918481038cda8e",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1292,
+    "hle_id": "6722a52340918481038cda8e",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "b984949eea0f30295437b7a98d0230fdb70d93f04e1af06e51616a697313e5ff"
+  },
+  {
+   "id": "HLE-67379aea6c946be458900f3f",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2042,
+    "hle_id": "67379aea6c946be458900f3f",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "2387f83d0e1ac55f756aa62a9f8595a5132b4fad4a51f3245fc86e0040915179"
+  },
+  {
+   "id": "HLE-672a80a432cd57d8762583e9",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1668,
+    "hle_id": "672a80a432cd57d8762583e9",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "a7a6518e16af1cb3b4178fa77cd085bfd40dcc8e2d5e81110751ec859d29e22e"
+  },
+  {
+   "id": "HLE-67249d57d91756473725533a",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1419,
+    "hle_id": "67249d57d91756473725533a",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Artificial Intelligence",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "a08621064e48b6968ed77b154bdfccd1bfe842cc8cb7a0d87452898119e5c29f"
+  },
+  {
+   "id": "HLE-6736fbe5670838f1f416e243",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1977,
+    "hle_id": "6736fbe5670838f1f416e243",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Trivia",
+    "category": "Other"
+   },
+   "sha256": "132c1eae4bf8c4c3d419267c902337a353cf029dabbe90d40207dbbf7a4a1db2"
+  },
+  {
+   "id": "HLE-66e926cd0a94aa76a5ed8df8",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 52,
+    "hle_id": "66e926cd0a94aa76a5ed8df8",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Game Design",
+    "category": "Other"
+   },
+   "sha256": "3011c5b3bdf15cc9020491fb22f2008f34c98ed3dd8e0d3966c83cde5587c373"
+  },
+  {
+   "id": "HLE-66e8e6c8f59e5564daf565bd",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 39,
+    "hle_id": "66e8e6c8f59e5564daf565bd",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "17ea8ed58f16c08153e0e6222d0a9fd0bf2f55250e001fe644c00e7addeb8373"
+  },
+  {
+   "id": "HLE-670c83ba4aece479236947cb",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 654,
+    "hle_id": "670c83ba4aece479236947cb",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physical Medicine And Rehabilitation",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "6820f40b33002681684e34e079a3d9d109ba357e4e96c11f9a908b9f00c1c06f"
+  },
+  {
+   "id": "HLE-673a8c2e4e2e35b51a27fafd",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2163,
+    "hle_id": "673a8c2e4e2e35b51a27fafd",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Microbiology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "da5aebac61e962c3fdd6c063f290cc457c2cadaa4d7a05719985c826301e9c24"
+  },
+  {
+   "id": "HLE-677da0a433769e54d305f23c",
+   "answer_type": "mcq_letter",
+   "n_options": 9,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2373,
+    "hle_id": "677da0a433769e54d305f23c",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "9f3e789dbd47061fc96e31f389980920b92b4bf482621a5277a75824f62bcdef"
+  },
+  {
+   "id": "HLE-66eafb96b082c5e6a76a49c0",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 123,
+    "hle_id": "66eafb96b082c5e6a76a49c0",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "History",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "caf3115214c2962a4f9a12835103f538a0a88314dcac3eae03dae209299e2920"
+  },
+  {
+   "id": "HLE-67264341699c78200b0177e5",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1596,
+    "hle_id": "67264341699c78200b0177e5",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "435bbe7ee5dd5dccc12cd66c51c484d209fa56002e89ba87ef5cdf23209b1d51"
+  },
+  {
+   "id": "HLE-6721f74cffe59043e1a1a35e",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1250,
+    "hle_id": "6721f74cffe59043e1a1a35e",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Classical Ballet",
+    "category": "Other"
+   },
+   "sha256": "78b2f4683f4fd6d13b7664ad29ef9a5e38809dc6ee0dc5b688e157fe29f62801"
+  },
+  {
+   "id": "HLE-6725adefc6537022833a1e04",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1546,
+    "hle_id": "6725adefc6537022833a1e04",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Law",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "8c1815d034bd15cc409d49574bc017ca840aee1692e03dffe5daf1f58aaf932a"
+  },
+  {
+   "id": "HLE-66e949664ea2c791558f8620",
+   "answer_type": "mcq_letter",
+   "n_options": 9,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 60,
+    "hle_id": "66e949664ea2c791558f8620",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Machine Learning",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "b279975557b1a4d3d6175a4c5bfdfc66f520b62d56c2d5b61bdfb93222405f3a"
+  },
+  {
+   "id": "HLE-67219b2486e95ac1054387bc",
+   "answer_type": "mcq_letter",
+   "n_options": 18,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1240,
+    "hle_id": "67219b2486e95ac1054387bc",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Logic",
+    "category": "Other"
+   },
+   "sha256": "1b4bfb118f073e172ce2f147775fb9f7c5c397048b7eb5b82eb255b6554d41b5"
+  },
+  {
+   "id": "HLE-671ba7b447e34cf4ed747b30",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 961,
+    "hle_id": "671ba7b447e34cf4ed747b30",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mechanical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "114258085501c29d73d2a75ef23d9d0045cbe083aa74dee2734d28ddd0be5511"
+  },
+  {
+   "id": "HLE-672a28afb4642f4105e02122",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1656,
+    "hle_id": "672a28afb4642f4105e02122",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "e2f911b02e2645b965918e09c8b849e9ce4edfa9c21749295cd7033eb5365614"
+  },
+  {
+   "id": "HLE-66ea3fb6e2dc97dd61195fe6",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 95,
+    "hle_id": "66ea3fb6e2dc97dd61195fe6",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Artificial Intelligence",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "4e1d4617046301f3764f34513ef6ab588e405e70ab927c197828bc9d02259b9f"
+  },
+  {
+   "id": "HLE-66eaf1f49c43656de6cf31f6",
+   "answer_type": "mcq_letter",
+   "n_options": 7,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 119,
+    "hle_id": "66eaf1f49c43656de6cf31f6",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Robotics",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "2474453915e606781b789cb8b23b4985d48763a4f499d0c10999061df295a29a"
+  },
+  {
+   "id": "HLE-671f33cb75523fe63c0a8b60",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1079,
+    "hle_id": "671f33cb75523fe63c0a8b60",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "705073ece7c3175d1613da8f3ae52be38c2de63ca5011071fc739325a2e44c45"
+  },
+  {
+   "id": "HLE-672295eda223ce4156c54839",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1288,
+    "hle_id": "672295eda223ce4156c54839",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "5baeb0e27e66471dce1fd5e9642edba610436979b4c0c94921fd61e022a95ec2"
+  },
+  {
+   "id": "HLE-672d9a18a3ca2744fbeb434f",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1730,
+    "hle_id": "672d9a18a3ca2744fbeb434f",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "752bba8e8bfbbf4017b738fb11a2906cf2477390a85d24283e0409cfbd013a46"
+  },
+  {
+   "id": "HLE-66ec5c9bf633b774fa320b36",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 147,
+    "hle_id": "66ec5c9bf633b774fa320b36",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-66ec5c9bf633b774fa320b36.jpg",
+   "sha256": "a59c41084f91ec157b831eaba024566c0fa25e0bf97a94236a9c608840ec32b6"
+  },
+  {
+   "id": "HLE-66fc8d96b315bda762372081",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 420,
+    "hle_id": "66fc8d96b315bda762372081",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Art History",
+    "category": "Other"
+   },
+   "image_file": "HLE-66fc8d96b315bda762372081.jpg",
+   "sha256": "4e3f61e665ca0f91a6c2f030e97574bcad17d6d796513c12af6cfc4cb3c027de"
+  },
+  {
+   "id": "HLE-6721408e0d97cabdbfa0ace9",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1219,
+    "hle_id": "6721408e0d97cabdbfa0ace9",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Biology",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "9dccf609a7f237557bb532109dfd0740b3ff8896a4153003837f8dabcd4ae3aa"
+  },
+  {
+   "id": "HLE-6723cdf07a517fb44dd35e47",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1356,
+    "hle_id": "6723cdf07a517fb44dd35e47",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "f6a58af5f2859dca3411793b98d942508a9b38a5fa57997b74f443c1ce66518a"
+  },
+  {
+   "id": "HLE-67250fde58b17ce5905f2cfe",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1464,
+    "hle_id": "67250fde58b17ce5905f2cfe",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "7e7e2c52ea6697f191f8c61d3aade799c358972e55dbb7fca5467730758a2041"
+  },
+  {
+   "id": "HLE-66f8f56e204cc74a525a23b8",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 346,
+    "hle_id": "66f8f56e204cc74a525a23b8",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Linguistics",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "84f962834b431dd908457e025992e54e407da77cf836c22cb7a0f0d7d4a21c5c"
+  },
+  {
+   "id": "HLE-6723977a2460a4b2c86caee8",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1335,
+    "hle_id": "6723977a2460a4b2c86caee8",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "378399e4f6901198a2bf5509d65392f21adad9224bc489e803678d57bf9deb20"
+  },
+  {
+   "id": "HLE-6730fc7d598fcdc8858811e6",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1801,
+    "hle_id": "6730fc7d598fcdc8858811e6",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Game Design",
+    "category": "Other"
+   },
+   "sha256": "6419b8a853e015a30e279ddae3dea7d8ebb6835390485ea36b180346bc7e59f4"
+  },
+  {
+   "id": "HLE-66e946fbb78e263c565b17e3",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 59,
+    "hle_id": "66e946fbb78e263c565b17e3",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Philosophy",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "2cf1df0ca73cab4eca839fa2bb79f1b3dfdc358113734b260eff20dc7cd355b1"
+  },
+  {
+   "id": "HLE-670db60f6f63b774df6f4daa",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 668,
+    "hle_id": "670db60f6f63b774df6f4daa",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Materials Science",
+    "category": "Engineering"
+   },
+   "sha256": "c26905a07524e14527948b5bc2b64423e455a3db40a15f8fbc36ada204d273f4"
+  },
+  {
+   "id": "HLE-671ff58624e49a0a566a7894",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1133,
+    "hle_id": "671ff58624e49a0a566a7894",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Film Studies",
+    "category": "Other"
+   },
+   "sha256": "b82c3f581fce19f46f0bae81d317814a0feeee2513459ac376c9a9d86d6fd7a5"
+  },
+  {
+   "id": "HLE-67672352c393c4ff629cb820",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2334,
+    "hle_id": "67672352c393c4ff629cb820",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Neuroscience",
+    "category": "Biology/Medicine"
+   },
+   "sha256": "1d778732e41357010039619268c36855f8a048947fdd4afb67ebc65e0c67d2d0"
+  },
+  {
+   "id": "HLE-6736391e384c276d45050b3b",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1920,
+    "hle_id": "6736391e384c276d45050b3b",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Visual Imagery",
+    "category": "Other"
+   },
+   "image_file": "HLE-6736391e384c276d45050b3b.jpg",
+   "sha256": "88c2e15eb38e045af532c9236e7b2834696867b069bcb35a3b0bbc33fc5f9faf"
+  },
+  {
+   "id": "HLE-6738e2bb0afc5078575438b5",
+   "answer_type": "mcq_letter",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2093,
+    "hle_id": "6738e2bb0afc5078575438b5",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Art History",
+    "category": "Other"
+   },
+   "sha256": "ca73d5462868f7b76a38d0e66b8b5b4427f9e8bba4db74593f5a650f0539cd17"
+  },
+  {
+   "id": "HLE-673be25fc988fbc8ef18d148",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2199,
+    "hle_id": "673be25fc988fbc8ef18d148",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Philosophy",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "69d993d3195798dc202b87186a73b4b9f7cd375a3b88a7412f4be56fe99349d1"
+  },
+  {
+   "id": "HLE-671be3853529bee9e3097b92",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 970,
+    "hle_id": "671be3853529bee9e3097b92",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Law",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "926fb942378d45e3a3dc57b7f030bc0a075a82bc718b588a7e63bf68c9c2fd03"
+  },
+  {
+   "id": "HLE-66f47471bba0ce38e1ca559f",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 293,
+    "hle_id": "66f47471bba0ce38e1ca559f",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Psychology",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "0913810d7d0113cc15452c3fe1825a1b09b982d6bc7ae759be353be82e725748"
+  },
+  {
+   "id": "HLE-67256aab1f67ae0874429a7c",
+   "answer_type": "mcq_letter",
+   "n_options": 9,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1517,
+    "hle_id": "67256aab1f67ae0874429a7c",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Earth Science",
+    "category": "Other"
+   },
+   "image_file": "HLE-67256aab1f67ae0874429a7c.png",
+   "sha256": "3e9276ac1a7d33487b1ca5a46559194a4085b40f6c146f4825c6bdb07b294751"
+  },
+  {
+   "id": "HLE-67258d077991f4a7cd4c359c",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1537,
+    "hle_id": "67258d077991f4a7cd4c359c",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "bf9f917a3d79cf0c97dc5edb849c29c06344e279a7301fa951b53007103aaaea"
+  },
+  {
+   "id": "HLE-672cb7f9040d34d0d0aaff61",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1704,
+    "hle_id": "672cb7f9040d34d0d0aaff61",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Classical Ballet",
+    "category": "Other"
+   },
+   "sha256": "aa15a1aaf5a2d698bb0c9ab9f24fa1c3aecd9aeb61a82ab1cd530d123506fe82"
+  },
+  {
+   "id": "HLE-6702bc770065c2f50235a34e",
+   "answer_type": "mcq_letter",
+   "n_options": 26,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 548,
+    "hle_id": "6702bc770065c2f50235a34e",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Economics",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "394c3b2cde022f028cc76ec57ad80069ad2373847dac933f04565d9e868e3a09"
+  },
+  {
+   "id": "HLE-6716ab6e8f636721baad869a",
+   "answer_type": "mcq_letter",
+   "n_options": 17,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 825,
+    "hle_id": "6716ab6e8f636721baad869a",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Trivia",
+    "category": "Other"
+   },
+   "image_file": "HLE-6716ab6e8f636721baad869a.png",
+   "sha256": "35eba5b413d016172e0ac96c651065b087ae2d9a31895254c3209ed05b2f87f4"
+  },
+  {
+   "id": "HLE-67256656d246bf5d21d1377e",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1516,
+    "hle_id": "67256656d246bf5d21d1377e",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Trivia",
+    "category": "Other"
+   },
+   "sha256": "606133c03ee7c53cdc52364835442edf853f4b8787f66da80ec38a2d9461646d"
+  },
+  {
+   "id": "HLE-672dfdac63f8d9211905d385",
+   "answer_type": "mcq_letter",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1745,
+    "hle_id": "672dfdac63f8d9211905d385",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "19d1923f75d6cac08d933103c7d5a1b4a46e0d1c6f3e10374c8c0ecce4440047"
+  },
+  {
+   "id": "HLE-673a2e0e1832025ec235f9aa",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2139,
+    "hle_id": "673a2e0e1832025ec235f9aa",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "44c3cce84f2393d4e4401bce59dd4a4fc51f50e6b8b8510d7813c1cd58178e8c"
+  },
+  {
+   "id": "HLE-66fc35ef3d06493836155397",
+   "answer_type": "mcq_letter",
+   "n_options": 7,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 388,
+    "hle_id": "66fc35ef3d06493836155397",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Sociology",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "85bf75d8710aece335f561e12a1260f39abe3c9a3e29af07990ff64053c6b664"
+  },
+  {
+   "id": "HLE-66ea2cc3c602e2b991ae8aba",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 89,
+    "hle_id": "66ea2cc3c602e2b991ae8aba",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "5ce2e6af13fc50bb98167e40c5ca02ce2eb041238d73376917daee0ed56ef766"
+  },
+  {
+   "id": "HLE-66eaa5ddc7a3252f0f3fe53f",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 110,
+    "hle_id": "66eaa5ddc7a3252f0f3fe53f",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Materials Science",
+    "category": "Engineering"
+   },
+   "sha256": "225ef1bf257fa36b2f99deafb404108156e49d4b50271251ebae8d08db3ed6ef"
+  },
+  {
+   "id": "HLE-66fa0dffda3403394e6b9996",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 354,
+    "hle_id": "66fa0dffda3403394e6b9996",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "96317abccf9cbf2a4aa0a8019ced6d4dc0bc56c6509c1e81fd30e570856305c7"
+  },
+  {
+   "id": "HLE-6738d83df02fdab01eba410c",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2088,
+    "hle_id": "6738d83df02fdab01eba410c",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Architecture",
+    "category": "Engineering"
+   },
+   "image_file": "HLE-6738d83df02fdab01eba410c.png",
+   "sha256": "ea5d4994246eb664609d1368f8d737ca66542472313a84e79170dc98a8551690"
+  },
+  {
+   "id": "HLE-673b955f2ddd80745b6bd232",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2195,
+    "hle_id": "673b955f2ddd80745b6bd232",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "8643020a0e8b7242a6286bc7b06bb5366926f3113bb6d9f1239c56d70c256186"
+  },
+  {
+   "id": "HLE-673617895f0b0b9b83ff36f4",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1914,
+    "hle_id": "673617895f0b0b9b83ff36f4",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Astronomy",
+    "category": "Physics"
+   },
+   "image_file": "HLE-673617895f0b0b9b83ff36f4.jpg",
+   "sha256": "c8c679dc421bbba3638d5d1a9f15506653550388e3a78bcd34991a3eeeabc91d"
+  },
+  {
+   "id": "HLE-66fe998c6a6869f258841e99",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 470,
+    "hle_id": "66fe998c6a6869f258841e99",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-66fe998c6a6869f258841e99.jpg",
+   "sha256": "2bcd3fcd42a300423b380a6a382c1c7e23efd1201669d2f45eb9894f996a1f30"
+  },
+  {
+   "id": "HLE-670980821053a19619c30869",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 622,
+    "hle_id": "670980821053a19619c30869",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "a4aaf717b223ca8e8475bc080edf337ae8fa3fabce117b458f0d85260e6afed4"
+  },
+  {
+   "id": "HLE-671d91bcad7fb0793a0e93bd",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1008,
+    "hle_id": "671d91bcad7fb0793a0e93bd",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "e9bc06d6cb127105554ef57a9124d50d2d6fac0503ea837fcc96bc25dad91ce0"
+  },
+  {
+   "id": "HLE-675aa6e703e9471764dfedd2",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2305,
+    "hle_id": "675aa6e703e9471764dfedd2",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Trivia",
+    "category": "Other"
+   },
+   "sha256": "bf532a3aff400d65c992bf13759259d224cf9002f07482f629bfeaa73de82077"
+  },
+  {
+   "id": "HLE-66eaa5414a8ccea7bfdf2df5",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 109,
+    "hle_id": "66eaa5414a8ccea7bfdf2df5",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Education",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "ce8b01db7e631a9f83183e1e0bdd6c6d40e5301fd8cadc346954335b789bfa45"
+  },
+  {
+   "id": "HLE-6731deb93e52c2db8f318e74",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1816,
+    "hle_id": "6731deb93e52c2db8f318e74",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Trivia",
+    "category": "Other"
+   },
+   "sha256": "0cc2df60de015b21bea9c31a2b63bb92e758ee66be1cfd39c3149b72a98e82e7"
+  },
+  {
+   "id": "HLE-6724f5c20c7d03e5a66cce4b",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1448,
+    "hle_id": "6724f5c20c7d03e5a66cce4b",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Computer Science",
+    "category": "Computer Science/AI"
+   },
+   "sha256": "f9622ee3a39f64604494e049f457c6d4524338e5557175b628657ade6a6a3edb"
+  },
+  {
+   "id": "HLE-6738b35e0cf19fed829b4838",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2084,
+    "hle_id": "6738b35e0cf19fed829b4838",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Architecture",
+    "category": "Engineering"
+   },
+   "image_file": "HLE-6738b35e0cf19fed829b4838.png",
+   "sha256": "ecbe4a6dc091cd2a3c8e2556094046a6b28cde7273ec8fd1fe177d667ccac6d6"
+  },
+  {
+   "id": "HLE-671f0b0c7301fac39660e7a3",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1057,
+    "hle_id": "671f0b0c7301fac39660e7a3",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Electrical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "d957b1525171ba02a7adaa867eb1bbdce21e2b24c779f3ea5e6802f0b4389b45"
+  },
+  {
+   "id": "HLE-673497b017a9687889930ac4",
+   "answer_type": "mcq_letter",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1863,
+    "hle_id": "673497b017a9687889930ac4",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "0a6b32bd5d89c1dbf79098eee4fab7e98a873f2bb3e748cad9e4169b561e06b0"
+  },
+  {
+   "id": "HLE-67572db350ff3671b773ebf2",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2299,
+    "hle_id": "67572db350ff3671b773ebf2",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Aerospace Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "f34acb7571a8d19f1cbaca769635abc9451f5f5e3291ba10d838ee53f16e48ad"
+  },
+  {
+   "id": "HLE-6728d1e3a8053eddd7a7f24a",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1636,
+    "hle_id": "6728d1e3a8053eddd7a7f24a",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "7fa9610adf77750421716aeb7899009a232b6c5a067c3bc38c2b5ef4b7ebd895"
+  },
+  {
+   "id": "HLE-66ee60c50e499ab807af71f2",
+   "answer_type": "mcq_letter",
+   "n_options": 7,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 189,
+    "hle_id": "66ee60c50e499ab807af71f2",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "International Business",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "6d5760bcebad93fbd54d03e0c5e50d109d702b171a38183b3d7c74ab07f9a8c7"
+  },
+  {
+   "id": "HLE-672ddd9bff7bf1483f564046",
+   "answer_type": "mcq_letter",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1740,
+    "hle_id": "672ddd9bff7bf1483f564046",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "e120d798f818f854463e6971d6fe81496f5cd2f56625c898f5be4b5566da68e4"
+  },
+  {
+   "id": "HLE-67230d6e736f03c0e4c1adee",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1318,
+    "hle_id": "67230d6e736f03c0e4c1adee",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "a82567d5c3e63c0abc506781097d2b517ba8159f18b0945e30a4d7e0228cf3dc"
+  },
+  {
+   "id": "HLE-6736e9109055c436feb3f65a",
+   "answer_type": "mcq_letter",
+   "n_options": 7,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1965,
+    "hle_id": "6736e9109055c436feb3f65a",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Game Of Go",
+    "category": "Other"
+   },
+   "sha256": "79a4114c753562eb3ceb8b657031f0bdbcd8157e642e1904951c5b46a4c99122"
+  },
+  {
+   "id": "HLE-6735c6e5f8dc0a94c3a3ae8e",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1904,
+    "hle_id": "6735c6e5f8dc0a94c3a3ae8e",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Russian Literature",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "00e1a289db0d6a85f6220fb14f525ae7e9efa890f70a52275a8bb73eab15c746"
+  },
+  {
+   "id": "HLE-673a5fa4329d98c7d4b69d60",
+   "answer_type": "mcq_letter",
+   "n_options": 20,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2470,
+    "hle_id": "673a5fa4329d98c7d4b69d60",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Musicology",
+    "category": "Other"
+   },
+   "sha256": "78143731c28ca87822648af78345e0c16c2b891145d507c90dec57377a266a71"
+  },
+  {
+   "id": "HLE-67123492a07b17fa3a1d9344",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 741,
+    "hle_id": "67123492a07b17fa3a1d9344",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Sports",
+    "category": "Other"
+   },
+   "sha256": "00c9812bd2fc3d9e231b7a281fd7cd7c9b89beebfceb999c77cf383b65801d6a"
+  },
+  {
+   "id": "HLE-670f9916451a882595c8f434",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 709,
+    "hle_id": "670f9916451a882595c8f434",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Puzzle",
+    "category": "Other"
+   },
+   "sha256": "e6e06e73dc1a6b16355c7180c39145a75ad2c45136b5d6ad65492d0c2fddf776"
+  },
+  {
+   "id": "HLE-6722d9de6bc44598e1fd09d6",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1306,
+    "hle_id": "6722d9de6bc44598e1fd09d6",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Games",
+    "category": "Other"
+   },
+   "sha256": "b8ce685b55fbc03bcd6a73d338580fc29c10b7a03f61d8240893d21b1cb54782"
+  },
+  {
+   "id": "HLE-672308e609910d09444df92a",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1316,
+    "hle_id": "672308e609910d09444df92a",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Law",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "8aa0158cd2919823b7ba63ec33507a37c01d923042126b909cd1c85fc68540f0"
+  },
+  {
+   "id": "HLE-673cf4fe0a06bbe311425068",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2212,
+    "hle_id": "673cf4fe0a06bbe311425068",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "3c571510d197a38441a8a6cb3a51d220f8836ce837d27e67d97142c0a196989d"
+  },
+  {
+   "id": "HLE-67381a8ee4ea03183132a559",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2062,
+    "hle_id": "67381a8ee4ea03183132a559",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Linguistics",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "a0a6ae2914e8b2cfcde2c4f724aada957b91e8d12e416ff41ba293941164d385"
+  },
+  {
+   "id": "HLE-670ad4fbb4aea214feb705d3",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 636,
+    "hle_id": "670ad4fbb4aea214feb705d3",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "05d662e5ea17f39c77a3242af4ed3421e2e6aa5aab07cd9925d5e5b860d16422"
+  },
+  {
+   "id": "HLE-671fee575a0f70920ad3bd80",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1129,
+    "hle_id": "671fee575a0f70920ad3bd80",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Law",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "4c5953d998d1aa7f526e99acdd1094cc5e9eaac97ee508503a386826278ad6fa"
+  },
+  {
+   "id": "HLE-675b1c7bc75183431b382945",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2306,
+    "hle_id": "675b1c7bc75183431b382945",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Chess And Topology",
+    "category": "Other"
+   },
+   "sha256": "7df0f497637d4ed4d1e1e43efa10f2793196fb062464f8c3acc57fce9fcc3964"
+  },
+  {
+   "id": "HLE-66fc8f1b8a73f859d8fa1608",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 421,
+    "hle_id": "66fc8f1b8a73f859d8fa1608",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "History",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "6d9630965a0569c0b062ab7655cd77c85fadddcfda53245dde598ba215eca768"
+  },
+  {
+   "id": "HLE-6732d3b01a3f938f2274a659",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1835,
+    "hle_id": "6732d3b01a3f938f2274a659",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "7538caa71fa3a73821ed5307a149a91e44d4f00d951a54316048a00cae4e47b1"
+  },
+  {
+   "id": "HLE-673736cea562fd298787764c",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2024,
+    "hle_id": "673736cea562fd298787764c",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-673736cea562fd298787764c.png",
+   "sha256": "4b75b74365876284a93220017493a88ca3ce2042791758ad54d58d5402336a45"
+  },
+  {
+   "id": "HLE-6722cf86c3c3c44b213a198a",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1305,
+    "hle_id": "6722cf86c3c3c44b213a198a",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Games",
+    "category": "Other"
+   },
+   "sha256": "abb853dba9146e0f62c59a0444d1582c8631eaeba1dddce078e35f1421ce8064"
+  },
+  {
+   "id": "HLE-6734989917a9687889930ac9",
+   "answer_type": "mcq_letter",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1864,
+    "hle_id": "6734989917a9687889930ac9",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "d94216eb9b3d520df64200a0082e638332b71d6fafa2e7cc5c606e619be91dfc"
+  },
+  {
+   "id": "HLE-66ee81afdec0afc28a74dc93",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 191,
+    "hle_id": "66ee81afdec0afc28a74dc93",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Education",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "4cb3e3a5a8a5b4f8aa97acfc9b4f6d933b0109bf3cfd5e62fdc6af84ad1e3f6f"
+  },
+  {
+   "id": "HLE-67474e78231099aba5aa677d",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2409,
+    "hle_id": "67474e78231099aba5aa677d",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Condensed Matter Physics",
+    "category": "Physics"
+   },
+   "image_file": "HLE-67474e78231099aba5aa677d.png",
+   "sha256": "d9aa5630bc6f28ef165593cb306b482548e9291a9c1d7ba47e33c70280f58130"
+  },
+  {
+   "id": "HLE-672ca66099e1076f34973c1f",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2482,
+    "hle_id": "672ca66099e1076f34973c1f",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-672ca66099e1076f34973c1f.png",
+   "sha256": "b48dedc7e86a554969a51873e08a7c9e73a9f4f8b365e06b873dca6b419b02a4"
+  },
+  {
+   "id": "HLE-6720066a447f1bb0370f36b1",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1138,
+    "hle_id": "6720066a447f1bb0370f36b1",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Electrical Engineering",
+    "category": "Engineering"
+   },
+   "image_file": "HLE-6720066a447f1bb0370f36b1.png",
+   "sha256": "2da7891f4d0f13e4fef6a88fc90423a5551c8b4c9edf8d62cb580468fdb500e2"
+  },
+  {
+   "id": "HLE-6724f8b80c7d03e5a66cce57",
+   "answer_type": "mcq_letter",
+   "n_options": 20,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1452,
+    "hle_id": "6724f8b80c7d03e5a66cce57",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Finance",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "792974c6de825efa7cb0d5c280a4892e734e389648079e805c9a75d9402bde39"
+  },
+  {
+   "id": "HLE-671c4c1a795af69402ddc414",
+   "answer_type": "mcq_letter",
+   "n_options": 14,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 980,
+    "hle_id": "671c4c1a795af69402ddc414",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-671c4c1a795af69402ddc414.jpg",
+   "sha256": "7c1ba5f80723698dbe5bf948aec98ec3121ab314d9368098eb936486f61a9267"
+  },
+  {
+   "id": "HLE-672e6e4a85ed85778c0fb28e",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1757,
+    "hle_id": "672e6e4a85ed85778c0fb28e",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Law",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "51645513cbea19c36ad57417483ee34c3136ee6d96a5813ea3bc43cd35e323e1"
+  },
+  {
+   "id": "HLE-671a779a0dd354b2ced21608",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 923,
+    "hle_id": "671a779a0dd354b2ced21608",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-671a779a0dd354b2ced21608.png",
+   "sha256": "178207ee09a4745364f53e50ce708b7abfcf03a88e4b366a5b061a2241d6963d"
+  },
+  {
+   "id": "HLE-6734956467d2904eebed3a09",
+   "answer_type": "mcq_letter",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1861,
+    "hle_id": "6734956467d2904eebed3a09",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "a824dee6c29ec483cdc26625b7a404387831ff6c1bd139a7ea55b2d1c762a218"
+  },
+  {
+   "id": "HLE-66fc5ed440e3b3e56869687f",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 405,
+    "hle_id": "66fc5ed440e3b3e56869687f",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Nuclear Physics",
+    "category": "Physics"
+   },
+   "sha256": "9c5f573d6aed98415665777a689acf4da3d5190d3975220a7569c73566633a9d"
+  },
+  {
+   "id": "HLE-67399a69c180d4d45680e434",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2127,
+    "hle_id": "67399a69c180d4d45680e434",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Physics",
+    "category": "Physics"
+   },
+   "sha256": "b7b9bb4fbf2da35a069a6eda30224e45ab952ec7757ffed8c177f581731b72a6"
+  },
+  {
+   "id": "HLE-6742fe5ea2e78a79e46bb220",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2248,
+    "hle_id": "6742fe5ea2e78a79e46bb220",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Comparative Literature",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "7d70fd0719d0d392bb9f4af28b1bd362fb8800f1674b18ba4043d1adf9e88623"
+  },
+  {
+   "id": "HLE-6723b02aaf0a31f10468be11",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1342,
+    "hle_id": "6723b02aaf0a31f10468be11",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-6723b02aaf0a31f10468be11.jpg",
+   "sha256": "3a7f7dbb26630ec2298526082645624635e727ebb71a93d85a05f575ec952e2b"
+  },
+  {
+   "id": "HLE-66fc49ef5067ff35e6302b7f",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 393,
+    "hle_id": "66fc49ef5067ff35e6302b7f",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mechanical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "e4885f63334fe2b2457753742af15057752850bd6fb678b8e808a328f1d4ddb8"
+  },
+  {
+   "id": "HLE-67363709b1a97400f39cdc71",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1919,
+    "hle_id": "67363709b1a97400f39cdc71",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Poetry",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "10e3f7b31a6eeeaab859ff1b28f47e2393d666f94edfe3a2950b27b7c853383c"
+  },
+  {
+   "id": "HLE-671a58056e1db673f77905cd",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 921,
+    "hle_id": "671a58056e1db673f77905cd",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Cultural Studies",
+    "category": "Humanities/Social Science"
+   },
+   "sha256": "eb0cd66a96f418518cd7f39c890be0c8d8d9eb64296d8dcc2b231e4ae52864af"
+  },
+  {
+   "id": "HLE-66fc5d63d90ebe461bfd0cab",
+   "answer_type": "mcq_letter",
+   "n_options": 7,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 402,
+    "hle_id": "66fc5d63d90ebe461bfd0cab",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Materials Science",
+    "category": "Engineering"
+   },
+   "image_file": "HLE-66fc5d63d90ebe461bfd0cab.png",
+   "sha256": "848c6f5b8225fffa2018951a394114381c802fa5aed7ed563c1f002622c10c0d"
+  },
+  {
+   "id": "HLE-6713afa11e0e03ffe2253dd4",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2492,
+    "hle_id": "6713afa11e0e03ffe2253dd4",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Combined Chemistry And Trivia",
+    "category": "Chemistry"
+   },
+   "sha256": "f4f0e7423cf736d05f2e51a8467b3af9f3b566a8818a5e37b7f6c35a6c597f0b"
+  },
+  {
+   "id": "HLE-671bc0c855449c636f4bbd36",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 966,
+    "hle_id": "671bc0c855449c636f4bbd36",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "90bce78cb541c9eade1103dfb9c745df6baf757c3ebd297aeb5393655e4dd1df"
+  },
+  {
+   "id": "HLE-6750df09c905be9066a3980c",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2285,
+    "hle_id": "6750df09c905be9066a3980c",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Bioeletronics",
+    "category": "Engineering"
+   },
+   "sha256": "93895ecec06ac6d2ae3315669a4e605b782ab32aa1985ce9a43bcc0de238650d"
+  },
+  {
+   "id": "HLE-670f2b7eeab97e29672ae77f",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 698,
+    "hle_id": "670f2b7eeab97e29672ae77f",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "image_file": "HLE-670f2b7eeab97e29672ae77f.jpg",
+   "sha256": "40729b14259fcca4875a7d18cd923091218a4bf76a80cde20f466066975fe00f"
+  },
+  {
+   "id": "HLE-671fadb2272218e5d336a33f",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1108,
+    "hle_id": "671fadb2272218e5d336a33f",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Electrical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "8300407b6b09141889d87973c68a21abcceedc98a0213f4d1f3ad10824101bde"
+  },
+  {
+   "id": "HLE-672ba16ae227dfbd739cfcc3",
+   "answer_type": "mcq_letter",
+   "n_options": 7,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1680,
+    "hle_id": "672ba16ae227dfbd739cfcc3",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "2e2d21ab0818f9d8224800a2dcd00ef0074748fa21031f5139eab147fae87a0a"
+  },
+  {
+   "id": "HLE-673819ece4ea03183132a556",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2061,
+    "hle_id": "673819ece4ea03183132a556",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Materials Science",
+    "category": "Engineering"
+   },
+   "image_file": "HLE-673819ece4ea03183132a556.jpg",
+   "sha256": "da1687ce13357fe99c31986ef472a418d11fae91c39d5be32029ec04884de8c6"
+  },
+  {
+   "id": "HLE-673ad4214ff8ec86c1487ed3",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2177,
+    "hle_id": "673ad4214ff8ec86c1487ed3",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "f8a022218f138ded12704c23af4645abe01c62e74336e90243b451f433bc7dee"
+  },
+  {
+   "id": "HLE-6723a613f747d32c6b0b65dc",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1339,
+    "hle_id": "6723a613f747d32c6b0b65dc",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "cc641b5dde1c7061ee322ff4a6d3998a7d75f2e5d40135cff3af59a2b7239deb"
+  },
+  {
+   "id": "HLE-678ed6acd3b675111409b815",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2389,
+    "hle_id": "678ed6acd3b675111409b815",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Computer Engineering",
+    "category": "Engineering"
+   },
+   "image_file": "HLE-678ed6acd3b675111409b815.png",
+   "sha256": "e97565fce9ba98cce3cc29e03bba4b68f581b51c6a170a713693ba2a536f7e23"
+  },
+  {
+   "id": "HLE-671dba3e5102c27a58a6c501",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1019,
+    "hle_id": "671dba3e5102c27a58a6c501",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "227a5ba4fbc398ffedff7bc44bf01d5492f10c1d58412b26ace0ca883d3182ee"
+  },
+  {
+   "id": "HLE-66f2cda3b508188b6e7328a8",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 266,
+    "hle_id": "66f2cda3b508188b6e7328a8",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Process Optimization",
+    "category": "Engineering"
+   },
+   "sha256": "b42feee3e7ca1d02d500a7d8e36570609069de63c6deea5ec80e48d7bf00b0c4"
+  },
+  {
+   "id": "HLE-67182659782f2aff686eab73",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 880,
+    "hle_id": "67182659782f2aff686eab73",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Chemistry",
+    "category": "Chemistry"
+   },
+   "sha256": "863f0d0f25acb78d91944a61c1b45b5f86d53d3025309c774f2c779daca16e71"
+  },
+  {
+   "id": "HLE-6720077fe15dd61079c852d0",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1139,
+    "hle_id": "6720077fe15dd61079c852d0",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Electrical Engineering",
+    "category": "Engineering"
+   },
+   "image_file": "HLE-6720077fe15dd61079c852d0.png",
+   "sha256": "9b22e12a70b0b42e515805049f5c757d7c47b25077ec061fd146ade9d3de1010"
+  },
+  {
+   "id": "HLE-672241b67d612873ced61e20",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1266,
+    "hle_id": "672241b67d612873ced61e20",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Lighting Design",
+    "category": "Engineering"
+   },
+   "sha256": "78126429a75df94bb0aadff44ca3a7731aa1659de99d680d97d79409352f532d"
+  },
+  {
+   "id": "HLE-66ea12d21684c1846037a28d",
+   "answer_type": "mcq_letter",
+   "n_options": 8,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 84,
+    "hle_id": "66ea12d21684c1846037a28d",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Computer Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "efe580c22b1f7e41a6ee35ff16165e9363932f278bef5fbb1c9008015a4a34d8"
+  },
+  {
+   "id": "HLE-67223944bb174709043a2641",
+   "answer_type": "mcq_letter",
+   "n_options": 6,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1263,
+    "hle_id": "67223944bb174709043a2641",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Aerospace Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "6611007a8874cc1b5a65032955867435f3d518f671b34514b58cc168c8c9c4c0"
+  },
+  {
+   "id": "HLE-676d64b87016c143f4d10eca",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 2408,
+    "hle_id": "676d64b87016c143f4d10eca",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Engineering Physics",
+    "category": "Engineering"
+   },
+   "image_file": "HLE-676d64b87016c143f4d10eca.png",
+   "sha256": "336426a684b74421dce01ef602ae2645461a4c5087865c875c93a41f98fcb02e"
+  },
+  {
+   "id": "HLE-671a567961c380782c9eea17",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 920,
+    "hle_id": "671a567961c380782c9eea17",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mechanical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "bb766f44128c83fe739b2f68ea1fab7785106143acf58f839858c00a1b598c1b"
+  },
+  {
+   "id": "HLE-66f02d3f022a2fa8918f215c",
+   "answer_type": "free",
+   "n_options": 10,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 226,
+    "hle_id": "66f02d3f022a2fa8918f215c",
+    "hle_answer_type": "exactMatch",
+    "raw_subject": "Mechanical Engineering",
+    "category": "Engineering"
+   },
+   "image_file": "HLE-66f02d3f022a2fa8918f215c.jpg",
+   "sha256": "a0bcdf047ab8daeec1092e5da45f304a21514812efe05d429de0e080d0539e7e"
+  },
+  {
+   "id": "HLE-671eeb53c1a668a6c81e5993",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1049,
+    "hle_id": "671eeb53c1a668a6c81e5993",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Electrical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "8916a8484d931a8c892908bd083ec79f77c3be6a547516bc4d0944ac99ac1b4a"
+  },
+  {
+   "id": "HLE-672423111ebc6d08d02c7f2d",
+   "answer_type": "mcq_letter",
+   "n_options": 5,
+   "dataset": "HLE",
+   "meta": {
+    "pool_index": 1396,
+    "hle_id": "672423111ebc6d08d02c7f2d",
+    "hle_answer_type": "multipleChoice",
+    "raw_subject": "Biomedical Engineering",
+    "category": "Engineering"
+   },
+   "sha256": "b76fcf0c553e885f510ca75ec0b15250535e728a7bbc074ac1e3349a63fcd185"
+  }
+ ]
+}
