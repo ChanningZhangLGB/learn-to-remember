@@ -10,6 +10,12 @@ streams in their fixed order, and the scripts behind every table in the paper.
 
 ## How it works
 
+<p align="center">
+  <img src="docs/framework.png" width="900" alt="The framework of LeRe">
+  <br>
+  <em>The framework of LeRe.</em>
+</p>
+
 1. **Plan.** A **Planner** turns each query into a structured retrieval key, a domain and
    tags drawn from a closed vocabulary, so retrieval matches on what a problem requires
    rather than on its surface wording.
